@@ -1,0 +1,23 @@
+# Dependencies
+node_modules/
+dist/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Env (never commit real secrets)
+.env
+.env.local
+.env.*.local
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Screenshots / scratch
+.screenshots/
+*.png
+!public/**/*.png
