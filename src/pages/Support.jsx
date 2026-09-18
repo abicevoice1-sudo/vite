@@ -95,7 +95,8 @@ export default function Support() {
               <div className="relative max-w-md mx-auto mb-6">
                 <Search className="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-muted" />
                 <input value={searchQuery} onChange={e => setSearchQuery(e.target.value)} placeholder="Search FAQs…"
-                  className="w-full pl-11 pr-4 py-3 rounded-xl border border-line/30 bg-elevated text-sm focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary transition-all" />
+                  className="w-full pl-11 pr-4 py-3 rounded-xl border border-line/30 bg-elevated text-sm focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary transition-all"
+                  aria-label="Search FAQs" />
               </div>
 
               {/* Category chips */}

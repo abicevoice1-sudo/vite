@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Layout from '../layouts/LandingLayout';
+import { analytics } from '../lib/analytics';
 import {
   Send, Search, ArrowLeft, MoreVertical, ShieldCheck, Sparkles, Check, X,
   MessageCircle, EyeOff, BadgeCheck, UserPlus, Info, Heart
@@ -64,11 +65,61 @@ const INITIAL_REQUESTS = [
     avatar: 'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&w=100&q=80' }
 ];
 
+// ── Per-member persistence — messages/intros survive reload on shared devices ─
+// Keys follow the signed-in account (sh_session.uid), never the bare browser.
+// Demo seeds are namespaced per member, so two accounts on one browser never
+// share threads or intro decisions. Same-device drafts only: no server delivery
+// is claimed here.
+const MSG_KEY = 'shiarishta_threads_v1';
+const INTRO_KEY = 'shiarishta_intros_v1';
+function sessionUid() {
+  try {
+    const raw = localStorage.getItem('sh_session');
+    const uid = raw ? JSON.parse(raw).uid : null;
+    return uid || 'signed-out';
+  } catch { return 'signed-out'; }
+}
+function scopedKey(base) {
+  return base + '::' + sessionUid();
+}
+function readScoped(base, fallback) {
+  try {
+    const raw = localStorage.getItem(scopedKey(base));
+    return raw ? JSON.parse(raw) : fallback;
+  } catch { return fallback; }
+}
+function writeScoped(base, value) {
+  try { localStorage.setItem(scopedKey(base), JSON.stringify(value)); } catch { /* quota — non-fatal */ }
+}
+function seedThreads() {
+  const seed = {};
+  for (const cid of Object.keys(INITIAL_MESSAGES)) seed[cid] = INITIAL_MESSAGES[cid].map(m => ({ ...m }));
+  return seed;
+}
+function loadThreads() {
+  const existing = readScoped(MSG_KEY, null);
+  if (existing && typeof existing === 'object') return existing;
+  const seed = seedThreads();
+  writeScoped(MSG_KEY, seed);
+  return seed;
+}
+function loadIntros() {
+  const existing = readScoped(INTRO_KEY, null);
+  if (Array.isArray(existing)) return existing.map(r => ({ ...r }));
+  const seed = INITIAL_REQUESTS.map(r => ({ ...r }));
+  writeScoped(INTRO_KEY, seed);
+  return seed;
+}
+function nowLabel() {
+  try { return new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }); }
+  catch { return 'now'; }
+}
+
 // ── Messages: Request Center + Chats with Chaperone mode ───────────────────
 export default function Messages() {
   const [convos, setConvos] = useState(INITIAL_CONVOS);
-  const [messagesByConvo, setMessagesByConvo] = useState(INITIAL_MESSAGES);
-  const [requests, setRequests] = useState(INITIAL_REQUESTS);
+  const [messagesByConvo, setMessagesByConvo] = useState(loadThreads);
+  const [requests, setRequests] = useState(loadIntros);
   const [activeId, setActiveId] = useState(null);
   const [tab, setTab] = useState('chats'); // 'chats' | 'requests'
   const [search, setSearch] = useState('');
@@ -81,7 +132,10 @@ export default function Messages() {
   useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages.length, activeId]);
 
   const addMessage = (convoId, msg) => {
-    setMessagesByConvo(prev => ({ ...prev, [convoId]: [...(prev[convoId] || []), msg] }));
+    // Persist first so a sent message survives reload on this device.
+    const nextThreads = { ...messagesByConvo, [convoId]: [...(messagesByConvo[convoId] || []), msg] };
+    writeScoped(MSG_KEY, nextThreads);
+    setMessagesByConvo(nextThreads);
     // Auto-clear unread when the member opens a conversation
     setConvos(prev => prev.map(c => (c.id === convoId ? { ...c, unread: 0 } : c)));
   };
@@ -90,12 +144,15 @@ export default function Messages() {
     const t = (text || '').trim();
     if (!t || !activeId) return;
     addMessage(activeId, { id: `m${Date.now()}`, sender: 'me', text: t, time: 'Just now' });
+    analytics.track('message_sent', { thread: activeId, browser_local: true });
   };
 
   const respondToRequest = (id, accept) => {
     const req = requests.find(r => r.id === id);
     if (!req) return;
-    setRequests(prev => prev.filter(r => r.id !== id));
+    const nextIntros = requests.filter(r => r.id !== id);
+    writeScoped(INTRO_KEY, nextIntros);
+    setRequests(nextIntros);
     if (accept) {
       const newConvo = {
         id: `new-${id}`, name: req.name, age: req.age, city: req.city, online: false,
@@ -103,10 +160,9 @@ export default function Messages() {
         photoAccess: req.photoAccess, guardianInvited: false, avatar: req.avatar
       };
       setConvos(prev => [newConvo, ...prev]);
-      setMessagesByConvo(prev => ({
-        ...prev,
-        [newConvo.id]: [{ id: 'g1', sender: 'system', text: `You accepted ${req.name}'s introduction request. A respectful conversation can now begin — consider inviting a chaperone.`, time: 'Just now' }]
-      }));
+      const acceptedThreads = { ...messagesByConvo, [newConvo.id]: [{ id: 'g1', sender: 'system', text: `You accepted ${req.name}'s introduction request. A respectful conversation can now begin — consider inviting a chaperone.`, time: 'Just now' }] };
+      writeScoped(MSG_KEY, acceptedThreads);
+      setMessagesByConvo(acceptedThreads);
       setActiveId(newConvo.id);
       setTab('chats');
     }
@@ -343,8 +399,8 @@ function ChatPane({ convo, messages, onBack, onSend, messagesEndRef, onInviteCha
           <p className="text-xs text-muted truncate">{convo.online ? 'Online now' : 'Offline'} · {convo.city} · {convo.compatibility}% match</p>
         </div>
         {convo.guardianInvited ? (
-          <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-[11px] font-medium"
-            className="btn btn-ghost btn-xs"
+          <span
+            className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-[11px] font-medium btn btn-ghost btn-xs"
             style={{ background: 'var(--color-primary-subtle)', color: 'var(--color-primary)' }}>
             <ShieldCheck className="w-2.5 h-2.5" /> {convo.guardianName || 'Chaperone present'}
           </span>
@@ -362,8 +418,7 @@ function ChatPane({ convo, messages, onBack, onSend, messagesEndRef, onInviteCha
 
       {/* Privacy banner */}
       {convo.photoAccess === 'match' && (
-        <p className="flex items-center justify-center gap-1.5 px-3 py-2 text-[11px] flex-shrink-0"
-          className="empty-state"
+        <p className="flex items-center justify-center gap-1.5 px-3 py-2 text-[11px] flex-shrink-0 empty-state"
           style={{ background: 'var(--color-primary-subtle)', color: 'var(--color-primary)' }}>
           <EyeOff className="w-2.5 h-2.5" /> Photos stay blurred until you both choose to share
         </p>

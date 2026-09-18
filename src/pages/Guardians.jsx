@@ -2,6 +2,28 @@ import Layout from '../layouts/LandingLayout';
 import { useState } from 'react';
 import { useToast } from '../lib/useToast';
 
+// ── Per-member persistence — guardian decisions survive reload ────────────
+// Keys follow the signed-in account (sh_session.uid), never the bare browser.
+// Same-device record only: revocation is enforced in this browser until a
+// backend owns consent. Demo seeds are namespaced per member.
+const GUARD_KEY = 'shiarishta_guardians_v1';
+function sessionUid() {
+  try {
+    const raw = localStorage.getItem('sh_session');
+    const uid = raw ? JSON.parse(raw).uid : null;
+    return uid || 'signed-out';
+  } catch { return 'signed-out'; }
+}
+function readGuardians(fallback) {
+  try {
+    const raw = localStorage.getItem(GUARD_KEY + '::' + sessionUid());
+    return raw ? JSON.parse(raw) : fallback;
+  } catch { return fallback; }
+}
+function writeGuardians(value) {
+  try { localStorage.setItem(GUARD_KEY + '::' + sessionUid(), JSON.stringify(value)); } catch { /* quota — non-fatal */ }
+}
+
 export default function Guardians() {
   const [guardians, setGuardians] = useState([
     {
@@ -67,14 +89,18 @@ export default function Guardians() {
     }
   };
 
+  const persistGuardians = (next) => {
+    writeGuardians(next);
+    setGuardians(next);
+  };
+
   const handleUpdatePermission = (guardianId, permission, granted) => {
-    setGuardians(prev =>
-      prev.map(g =>
+    persistGuardians(guardians.map(g =>
         g.id === guardianId
           ? {
               ...g,
               permissions: granted
-                ? [...g.permissions, permission]
+                ? [...new Set([...g.permissions, permission])]
                 : g.permissions.filter(p => p !== permission)
             }
           : g
@@ -84,7 +110,7 @@ export default function Guardians() {
 
   return (
     <Layout>
-      <main>
+            <main className="px-4 sm:px-6 py-6 sm:py-10">
         <h1>Guardians & Family Connections</h1>
         <p>Manage your wali (guardian) relationships and family involvement in your matchmaking journey.</p>
 
@@ -95,8 +121,8 @@ export default function Guardians() {
               <p className="empty-state">
                 You haven\\'t added any guardians yet. Adding a guardian allows family members to be involved in your matchmaking process with appropriate permissions.
               </p>
-            ) : (
-              <div className="guardian-list">
+                        ) : (
+              <div className="guardian-list space-y-4 mt-4">
                 {guardians.map(guardian => (
                   <div key={guardian.id} className="guardian-card">
                     <div className="guardian-header">
@@ -111,9 +137,9 @@ export default function Guardians() {
                     )}
                     <div className="guardian-permissions">
                       <strong>Permissions:</strong>
-                      <div className="permission-tags">
+                      <div className="permission-tags flex flex-wrap gap-1.5 mt-1">
                         {guardian.permissions.map(perm => (
-                          <span key={perm} className="permission-tag">
+                          <span key={perm} className="permission-tag px-2 py-0.5 bg-elevated border border-line/20 rounded text-xs">
                             {perm
                               .replace(/([A-Z])/g, ' $1')
                               .replace(/^./, str => str.toUpperCase())
@@ -122,7 +148,7 @@ export default function Guardians() {
                         ))}
                       </div>
                     </div>
-                    <div className="guardian-actions">
+                    <div className="guardian-actions mt-3 flex gap-2">
                       <button
                         onClick={() => handleUpdatePermission(guardian.id, 'messageView', !guardian.permissions.includes('messageView'))}
                         className="button muted"
@@ -141,7 +167,7 @@ export default function Guardians() {
               </div>
             )}
 
-            <h2>Add New Guardian</h2>
+            <h2 className="mt-6">Add New Guardian</h2>
             <form onSubmit={handleAddGuardian} className="form-card">
               <div>
                 <label htmlFor="guardianName">Guardian Name *</label>

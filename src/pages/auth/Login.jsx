@@ -31,10 +31,10 @@ export default function Login() {
   };
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center px-6 py-12 overflow-hidden" style={{ background: 'var(--color-canvas)' }}>
+    <div className="relative min-h-screen flex items-center justify-center px-6 py-12 overflow-hidden bg-canvas" style={{ background: 'var(--color-canvas)' }}>
       {/* Ambient glows */}
-      <div className="absolute -top-40 -left-40 w-[480px] h-[480px] rounded-full opacity-20" style={{ background: 'radial-gradient(circle, #d4af69, transparent 65%)', filter: 'blur(40px)' }} />
-      <div className="absolute -bottom-40 -right-40 w-[480px] h-[480px] rounded-full opacity-20" style={{ background: 'radial-gradient(circle, #10b981, transparent 65%)', filter: 'blur(40px)' }} />
+      <div className="absolute top-0 left-0 w-64 h-64 rounded-full opacity-20" style={{ background: 'radial-gradient(circle, #d4af69, transparent 65%)', filter: 'blur(40px)' }} />
+      <div className="absolute bottom-0 right-0 w-64 h-64 rounded-full opacity-20" style={{ background: 'radial-gradient(circle, #10b981, transparent 65%)', filter: 'blur(40px)' }} />
 
       <div className="relative w-full max-w-md">
         <button

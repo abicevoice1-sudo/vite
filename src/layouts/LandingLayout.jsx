@@ -1,13 +1,16 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../lib/auth/AuthContext';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import {
-  Sparkles, Menu, X, ArrowRight, BadgeCheck,
-  MessageCircle, Globe, Mail, Send, Bot, Bell, User, Heart, ShieldCheck, UserCheck
+  Menu, X, ArrowRight,
+  Bot, Bell, LayoutDashboard, Heart, ShieldCheck, UserCheck,
+  Shield, User, Lock,
 } from 'lucide-react';
 import ThemeMenu from '../components/ThemeMenu';
 import AIAssistant, { openAIAssistant } from '../components/AIAssistant';
+import SiteFooter from '../components/SiteFooter';
+import { applyIsDark, readIsDark } from '../lib/theme';
 
 const landingLinks = [
   { href: '/profiles', label: 'Profiles' },
@@ -15,6 +18,13 @@ const landingLinks = [
   { href: '/community', label: 'Community' },
   { href: '/contact', label: 'Contact' },
 ];
+
+// Account avatar initials — "Ali K." → "AK", a lone email → its first letter.
+const initialsOf = (name) => {
+  const parts = String(name || '').trim().split(/\s+/).filter(Boolean);
+  if (!parts.length) return 'U';
+  return (parts[0][0] + (parts[1]?.[0] || '')).toUpperCase();
+};
 
 // ── Notifications — accessible popover with unread state ────────────────────
 const NOTIFICATIONS = [
@@ -61,16 +71,20 @@ function NotificationsMenu() {
         aria-haspopup="true"
         onClick={() => setOpen(o => !o)}
       >
-        <Bell className="w-4 h-4" />
+        <Bell className="w-5 h-5" />
         {unreadCount > 0 && (
           <span
             aria-hidden="true"
             style={{
-              position: 'absolute', top: 6, right: 6, width: 8, height: 8,
+              position: 'absolute', top: 4, right: 4, width: 10, height: 10,
               borderRadius: '50%', background: 'var(--color-danger)',
               boxShadow: '0 0 0 2px var(--color-canvas)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              color: 'white', fontSize: '7px', fontWeight: 'bold'
             }}
-          />
+          >
+            {unreadCount}
+          </span>
         )}
       </button>
 
@@ -78,12 +92,7 @@ function NotificationsMenu() {
         <div
           role="region"
           aria-label="Notifications"
-          style={{
-            position: 'absolute', top: 'calc(100% + 8px)', right: 0, zIndex: 60,
-            width: 'min(340px, calc(100vw - 24px))', padding: '6px',
-            borderRadius: 'var(--radius-lg)', border: '1px solid var(--color-border)',
-            background: 'var(--color-elevated)', boxShadow: '0 12px 32px rgba(0,0,0,0.22)',
-          }}
+          className="notif-popover"
         >
           <div className="flex items-center justify-between" style={{ padding: '6px 8px 10px' }}>
             <span className="text-xs font-bold" style={{ color: 'var(--color-ink)' }}>Notifications</span>
@@ -119,219 +128,421 @@ function NotificationsMenu() {
 }
 
 
-function LandingHeader({ dark, setDark }) {
-  const { isLoggedIn } = useAuth();
-  const [mobileOpen, setMobileOpen] = useState(false);
-  const location = useLocation();
+// ── Account menu — dropdown popover for the avatar chip ───────────────────────
+function AccountMenu({ user, logout, open, onClose, onToggle }) {
+  const [confirmLogout, setConfirmLogout] = useState(false);
+  const rootRef = useRef(null);
+
+  // Sync internal state: close when parent closes, reset confirm when re-opening
+  useEffect(() => {
+    if (!open) setConfirmLogout(false);
+  }, [open]);
 
   useEffect(() => {
-    setMobileOpen(false);
-  }, [location.pathname]);
+    if (!rootRef.current) return;
+    const onPointerDown = (e) => {
+      if (rootRef.current && !rootRef.current.contains(e.target)) onClose();
+    };
+    const onKeyDown = (e) => {
+      if (e.key === 'Escape') onClose();
+    };
+    document.addEventListener('pointerdown', onPointerDown);
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('pointerdown', onPointerDown);
+      document.removeEventListener('keydown', onKeyDown);
+    };
+  }, [onClose]);
 
-  return (
-    <header className="landing-header">
-      <div className="landing-header-inner">
-        {/* Logo */}
-        <Link to="/" className="landing-brand">
-          <span className="landing-brand-mark">S</span>
-          <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.1 }}>
-            <span style={{ fontWeight: 700, fontSize: '0.95rem', letterSpacing: '-0.02em' }}>SHIARISHTA</span>
-            <span style={{ fontSize: '0.6rem', fontWeight: 500, letterSpacing: '0.08em', color: 'var(--color-ink-tertiary)', textTransform: 'uppercase' }}>Nikah Matchmaking</span>
-          </div>
-        </Link>
-
-        {/* Primary nav — centered */}
-        <nav className="landing-nav" aria-label="Main navigation">
-          {landingLinks.map(l => (
-            <Link key={l.href} to={l.href}>{l.label}</Link>
-          ))}
-        </nav>
-
-        {/* Secondary actions — right */}
-        <div className="landing-header-actions">
-          {/* Utility: AI Assistant */}
-          <button type="button" className="btn btn-ghost btn-sm landing-header-ai" onClick={openAIAssistant} aria-label="Open AI assistant">
-            <Bot className="w-3.5 h-3.5" /> AI
-          </button>
-
-          {/* Icon group: Notifications + Profile (Settings moved to corner) */}
-          <div className="landing-header-icon-group">
-            {isLoggedIn && (
-              <NotificationsMenu />
-            )}
-            {isLoggedIn && (
-              <Link
-                to="/dashboard"
-                className="landing-icon-btn"
-                style={{ background: 'var(--color-primary-subtle)', color: 'var(--color-primary)' }}
-                aria-label="Your dashboard"
-                title="Your dashboard"
-              >
-                <User className="w-4 h-4" />
-              </Link>
-            )}
-          </div>
-
-          {/* Auth / CTA */}
-          {isLoggedIn ? (
-            <Link to="/dashboard" className="btn btn-primary btn-sm landing-header-cta">
-              Dashboard <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
-          ) : (
-            <>
-              <Link to="/auth/login" className="btn btn-ghost btn-sm landing-cta-header-login landing-header-cta">
-                Sign in
-              </Link>
-              <Link to="/auth/register" className="btn btn-primary btn-sm landing-cta-header landing-header-cta">
-                Create free account
-              </Link>
-            </>
-          )}
-
-          {/* Setting icon - positioned in corner right side */}
-          <ThemeMenu dark={dark} setDark={setDark} direction="down" className="landing-header-theme-corner" />
-
-          {/* Mobile menu toggle */}
-          <button className="landing-icon-btn landing-menu-btn" onClick={() => setMobileOpen(o => !o)} aria-label="Toggle menu" aria-expanded={mobileOpen}>
-            {mobileOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
-          </button>
-        </div>
-      </div>
-
-      <div className={`landing-mobile-nav ${mobileOpen ? 'open' : ''}`} role="navigation" aria-label="Mobile">
-        {landingLinks.map(l => (
-          <Link key={l.href} to={l.href}>{l.label}</Link>
-        ))}
-        {isLoggedIn && (
-          <>
-            <Link to="/dashboard">Dashboard</Link>
-            <Link to="/settings">Settings</Link>
-          </>
-        )}
-        <button
-          type="button"
-          onClick={() => { setMobileOpen(false); openAIAssistant(); }}
-          className="flex items-center gap-2"
-          style={{ padding: '0.65rem 0.75rem', borderRadius: 'var(--radius-md)', fontWeight: 550, color: 'var(--color-ink-secondary)', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left', width: '100%' }}
-        >
-          <Bot className="w-4 h-4" /> AI Assistant
-        </button>
-        {!isLoggedIn && (
-          <>
-            <Link to="/auth/login">Sign in</Link>
-            <Link to="/auth/register">Create free account</Link>
-          </>
-        )}
-      </div>
-    </header>
-  );
-}
-
-function LandingFooter() {
-  const [email, setEmail] = useState('');
-  const [subscribed, setSubscribed] = useState(false);
-
-  const subscribe = (e) => {
-    e.preventDefault();
-    if (!email.trim()) return;
-    setSubscribed(true);
-    setEmail('');
-    setTimeout(() => setSubscribed(false), 4000);
+  const handleLogout = () => {
+    logout();
+    onClose();
   };
 
   return (
-    <footer className="landing-footer">
-      <div className="landing-footer-inner">
-        {/* Col 1 — Brand + Status */}
-        <div className="landing-footer-brand">
-          <Link to="/" className="landing-brand" style={{ marginBottom: '0.5rem' }}>
-            <span className="landing-brand-mark">S</span>
-            <span style={{ fontWeight: 700, fontSize: '0.95rem' }}>SHIARISHTA</span>
-          </Link>
-          <p>
-            Privacy-first Shia matchmaking where intention meets introduction.
-            Built on trust, verification, and wali-supported journeys.
-          </p>
-          <div className="flex items-center gap-2 mt-3">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="text-xs" style={{ color: 'var(--color-ink-tertiary)' }}>All systems operational</span>
+    <div ref={rootRef} style={{ position: 'relative', display: 'inline-flex' }}>
+      {/* Avatar chip — opens the menu */}
+      <button
+        className="landing-avatar-btn"
+        aria-label={`Account — ${user?.displayName || 'your profile'}`}
+        title="Your account"
+        aria-haspopup="true"
+        aria-expanded={open}
+        onClick={() => { setConfirmLogout(false); onToggle(); }}
+        style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+      >
+        {initialsOf(user?.displayName || user?.email)}
+      </button>
+
+      {/* Dropdown panel — only rendered when open */}
+      {open && (
+        <div
+        role="region"
+        aria-label="Account"
+        className="account-menu"
+        style={{
+          position: 'absolute',
+          top: 'calc(100% + 8px)',
+          right: 0,
+          minWidth: 200,
+          background: 'var(--color-elevated)',
+          border: '1px solid var(--color-border)',
+          borderRadius: 'var(--radius-lg)',
+          boxShadow: '0 12px 32px rgba(0, 0, 0, 0.22)',
+          padding: '6px',
+          zIndex: 60,
+        }}
+      >
+        {/* Header */}
+        <div style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          padding: '6px 8px 10px', borderBottom: '1px solid var(--color-border-subtle)', marginBottom: '4px',
+        }}>
+          <span className="text-xs font-bold" style={{ color: 'var(--color-ink)' }}>Account</span>
+          <button
+            onClick={onClose}
+            aria-label="Close account menu"
+            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '2px', borderRadius: '4px', color: 'var(--color-ink-tertiary)' }}
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
+        </div>
+
+        {/* Settings */}
+        <Link
+          to="/settings"
+          onClick={onClose}
+          style={{
+            display: 'flex', alignItems: 'center', gap: '8px',
+            padding: '8px 8px', borderRadius: 'var(--radius-md)',
+            textDecoration: 'none', fontWeight: 500, fontSize: '0.875rem',
+            color: 'var(--color-ink)', cursor: 'pointer',
+            transition: 'background 0.15s',
+          }}
+        >
+          <Shield className="w-4 h-4" style={{ color: 'var(--color-primary)', flexShrink: 0 }} />
+          Settings
+        </Link>
+
+        {/* Profile */}
+        <Link
+          to="/profile"
+          onClick={onClose}
+          style={{
+            display: 'flex', alignItems: 'center', gap: '8px',
+            padding: '8px 8px', borderRadius: 'var(--radius-md)',
+            textDecoration: 'none', fontWeight: 500, fontSize: '0.875rem',
+            color: 'var(--color-ink)', cursor: 'pointer',
+            transition: 'background 0.15s',
+          }}
+        >
+          <User className="w-4 h-4" style={{ color: 'var(--color-ink-tertiary)', flexShrink: 0 }} />
+          Profile
+        </Link>
+
+        {/* Logout */}
+        {confirmLogout ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', padding: '4px 0', marginTop: '4px', borderTop: '1px solid var(--color-border-subtle)' }}>
+            <button
+              onClick={handleLogout}
+              style={{
+                display: 'flex', alignItems: 'center', gap: '8px',
+                padding: '8px 8px', borderRadius: 'var(--radius-md)',
+                border: '1px solid var(--color-danger)',
+                background: 'var(--color-danger-subtle)',
+                color: 'var(--color-danger)', fontWeight: 600, fontSize: '0.875rem',
+                cursor: 'pointer', width: '100%',
+              }}
+            >
+              <Lock className="w-4 h-4" style={{ flexShrink: 0 }} />
+              Yes, sign out
+            </button>
+            <button
+              onClick={() => setConfirmLogout(false)}
+              style={{
+                display: 'flex', alignItems: 'center', gap: '8px',
+                padding: '8px 8px', borderRadius: 'var(--radius-md)',
+                border: 'none', background: 'transparent',
+                color: 'var(--color-ink-tertiary)', fontWeight: 500, fontSize: '0.875rem',
+                cursor: 'pointer', width: '100%',
+              }}
+            >
+              Cancel
+            </button>
           </div>
-        </div>
-
-        {/* Col 2 — Platform */}
-        <div className="landing-footer-col">
-          <div className="landing-footer-col-title">Platform</div>
-          <Link to="/profiles">Browse Profiles</Link>
-          <Link to="/success-stories">Success Stories</Link>
-          <Link to="/auth/register">Create Profile</Link>
-        </div>
-
-        {/* Col 3 — Resources */}
-        <div className="landing-footer-col">
-          <div className="landing-footer-col-title">Resources</div>
-          <Link to="/blog">Guidance Blog</Link>
-          <Link to="/community">Community</Link>
-          <Link to="/safety">Safety Center</Link>
-          <Link to="/support">Help &amp; Support</Link>
-          <Link to="/contact">Contact Us</Link>
-        </div>
-
-        {/* Col 4 — Newsletter */}
-        <div className="landing-footer-col">
-          <div className="landing-footer-col-title">Stay Updated</div>
-          <p style={{ fontSize: '0.8125rem', lineHeight: 1.6, color: 'var(--color-ink-secondary)', marginBottom: '0.75rem' }}>
-            Get matchmaking guidance and community updates.
-          </p>
-          {subscribed ? (
-            <p className="flex items-center gap-1.5 text-xs font-semibold" style={{ color: 'var(--color-success)' }}>
-              <BadgeCheck className="w-3.5 h-3.5" /> Subscribed — welcome!
-            </p>
-          ) : (
-            <form onSubmit={subscribe} className="flex gap-2">
-              <input
-                type="email"
-                required
-                placeholder="you@example.com"
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-                aria-label="Email address"
-                className="input"
-                style={{ padding: '0.4rem 0.6rem', fontSize: '0.8125rem' }}
-              />
-              <button type="submit" className="btn btn-primary btn-sm" aria-label="Subscribe">
-                <Send className="w-3.5 h-3.5" />
-              </button>
-            </form>
-          )}
-        </div>
+        ) : (
+          <button
+            onClick={() => setConfirmLogout(true)}
+            style={{
+              display: 'flex', alignItems: 'center', gap: '8px',
+              padding: '8px 8px', borderRadius: 'var(--radius-md)',
+              border: '1px solid var(--color-border)',
+              background: 'transparent',
+              color: 'var(--color-ink)', fontWeight: 500, fontSize: '0.875rem',
+              cursor: 'pointer', width: '100%', marginTop: '4px',
+            }}
+          >
+            <Lock className="w-4 h-4" style={{ color: 'var(--color-ink-tertiary)', flexShrink: 0 }} />
+            Sign out
+          </button>
+        )}
       </div>
-
-      <div className="landing-footer-bottom">
-        <span>© 2026 Shiarishta. All rights reserved.</span>
-        <div className="flex flex-col gap-2">
-          <Link to="/privacy" className="text-xs" style={{ color: 'var(--color-ink-tertiary)' }}>Privacy</Link>
-          <Link to="/terms" className="text-xs" style={{ color: 'var(--color-ink-tertiary)' }}>Terms</Link>
-        </div>
-      </div>
-    </footer>
+    )}
+    </div>
   );
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Mobile navigation styles (kept minimal — main styles are in globals.css)
-// ─────────────────────────────────────────────────────────────────────────────
+
+function LandingHeader({ dark, setDark }) {
+  const { isLoggedIn, user, logout } = useAuth();
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [accountMenuOpen, setAccountMenuOpen] = useState(false);
+  const location = useLocation();
+  const headerRef = useRef(null);
+  const mobilePanelRef = useRef(null);
+  const mobileToggleRef = useRef(null);
+  const reduceMotion = useReducedMotion();
+  const accountMenuRef = useRef(null);
+
+  useEffect(() => {
+    setMobileNavOpen(false);
+  }, [location.pathname]);
+
+  // Keep keyboard focus in the floating panel while it is open.
+  useEffect(() => {
+    if (!mobileNavOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    mobilePanelRef.current?.querySelector('button')?.focus();
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') setMobileNavOpen(false);
+      if (event.key !== 'Tab') return;
+      const controls = mobilePanelRef.current?.querySelectorAll('a[href], button:not([disabled])');
+      if (!controls?.length) return;
+      const first = controls[0];
+      const last = controls[controls.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+    const desktop = window.matchMedia('(min-width: 1024px)');
+    const closeOnDesktop = () => { if (desktop.matches) setMobileNavOpen(false); };
+    desktop.addEventListener('change', closeOnDesktop);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener('keydown', handleKeyDown);
+      desktop.removeEventListener('change', closeOnDesktop);
+      mobileToggleRef.current?.focus();
+    };
+  }, [mobileNavOpen]);
+
+  // Close account menu on outside click or Escape
+  useEffect(() => {
+    if (!accountMenuOpen) return;
+    const handleClickOutside = (e) => {
+      if (accountMenuRef.current && !accountMenuRef.current.contains(e.target)) {
+        setAccountMenuOpen(false);
+      }
+    };
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') setAccountMenuOpen(false);
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [accountMenuOpen]);
+
+  const toggleMobileNav = () => setMobileNavOpen(o => !o);
+
+  return (
+    <>
+      <header className="landing-header" ref={headerRef}>
+        <div className="landing-header-inner">
+          {/* Logo */}
+          <Link to="/" className="landing-brand" aria-label="Shiarishta — home">
+            <span className="landing-brand-mark">S</span>
+            <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.1 }}>
+              <span style={{ fontWeight: 700, fontSize: '0.95rem', letterSpacing: '-0.02em' }}>SHIARISHTA</span>
+              <span style={{ fontSize: '0.6rem', fontWeight: 500, letterSpacing: '0.08em', color: 'var(--color-ink-tertiary)', textTransform: 'uppercase' }}>Nikah Matchmaking</span>
+            </div>
+          </Link>
+
+          {/* Primary nav — centered */}
+          <nav className="landing-nav" aria-label="Main navigation">
+            {landingLinks.map(l => (
+              <Link key={l.href} to={l.href}>{l.label}</Link>
+            ))}
+          </nav>
+
+          {/* Secondary actions — right */}
+          <div className="landing-header-actions">
+            {/* Utility: AI Assistant */}
+            <button type="button" className="btn btn-ghost btn-sm landing-header-ai" onClick={openAIAssistant} aria-label="Open AI assistant">
+              <Bot className="w-4 h-4" />
+              <span className="hidden sm:inline">AI</span>
+            </button>
+
+            {/* Dashboard — directly after AI, members only */}
+            {isLoggedIn && (
+              <Link
+                to="/dashboard"
+                className="btn btn-primary btn-sm landing-header-cta"
+                aria-label="Go to your dashboard"
+              >
+                <LayoutDashboard className="w-4 h-4" />
+                <span className="hidden sm:inline">Dashboard</span>
+              </Link>
+            )}
+
+            {/* Icon group: Notifications + Appearance + Account */}
+            <div className="landing-header-icon-group">
+              {isLoggedIn && <NotificationsMenu />}
+              <ThemeMenu dark={dark} setDark={setDark} direction="down" />
+              {isLoggedIn && <AccountMenu user={user} logout={logout} open={accountMenuOpen} onToggle={() => setAccountMenuOpen(o => !o)} onClose={() => setAccountMenuOpen(false)} />}
+            </div>
+
+            {/* Auth CTA — visitors */}
+            {!isLoggedIn && (
+              <>
+                <Link to="/auth/login" className="btn btn-ghost btn-sm landing-cta-header-login landing-header-cta">
+                  Sign in
+                </Link>
+                <Link to="/auth/register" className="btn btn-primary btn-sm landing-cta-header landing-header-cta">
+                  Create free account
+                </Link>
+              </>
+            )}
+
+            {/* Mobile menu toggle - visible only on mobile */}
+            <button
+              ref={mobileToggleRef}
+              type="button"
+              className="landing-icon-btn landing-menu-btn"
+              onClick={toggleMobileNav}
+              aria-label={mobileNavOpen ? 'Close menu' : 'Open menu'}
+              aria-expanded={mobileNavOpen}
+              aria-controls="mobile-nav-panel"
+            >
+              {mobileNavOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {/* Mobile navigation overlay backdrop */}
+      <AnimatePresence>
+        {mobileNavOpen && (
+          <motion.div
+            key="mobile-backdrop"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: reduceMotion ? 0 : 0.2 }}
+            className="mobile-nav-backdrop lg:hidden"
+            aria-hidden="true"
+            onClick={() => setMobileNavOpen(false)}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Mobile navigation drawer */}
+      <AnimatePresence>
+        {mobileNavOpen && (
+          <motion.div
+            key="mobile-nav-panel"
+            ref={mobilePanelRef}
+            initial={{ opacity: 0, y: reduceMotion ? 0 : -12, scale: reduceMotion ? 1 : 0.97 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: reduceMotion ? 0 : -8 }}
+            transition={{ duration: reduceMotion ? 0 : 0.22, ease: [0.16, 1, 0.3, 1] }}
+            className="mobile-nav-drawer lg:hidden"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Mobile navigation"
+            id="mobile-nav-panel"
+          >
+            {/* Mobile nav header */}
+            <div className="mobile-nav-header">
+              <Link to="/" className="flex items-center gap-2" onClick={() => setMobileNavOpen(false)}>
+                <span className="landing-brand-mark" style={{ fontSize: '1.25rem' }}>S</span>
+                <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.1 }}>
+                  <span style={{ fontWeight: 700, fontSize: '0.95rem', letterSpacing: '-0.02em' }}>SHIARISHTA</span>
+                  <span style={{ fontSize: '0.55rem', fontWeight: 500, letterSpacing: '0.08em', color: 'var(--color-ink-tertiary)', textTransform: 'uppercase' }}>Nikah Matchmaking</span>
+                </div>
+              </Link>
+              <button
+                className="landing-icon-btn"
+                onClick={() => setMobileNavOpen(false)}
+                aria-label="Close menu"
+                style={{ width: '36px', height: '36px' }}
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Mobile nav links */}
+            <nav className="mobile-nav-links p-4 space-y-1">
+              {landingLinks.map(l => (
+                <Link
+                  key={l.href}
+                  to={l.href}
+                  className="mobile-nav-link"
+                  aria-current={location.pathname === l.href ? 'page' : undefined}
+                  onClick={() => setMobileNavOpen(false)}
+                >
+                  {l.label}
+                </Link>
+              ))}
+            </nav>
+
+            {/* Mobile auth section */}
+            <div className="mobile-nav-auth">
+              {isLoggedIn ? (
+                <Link
+                  to="/dashboard"
+                  className="btn btn-primary w-full"
+                  onClick={() => setMobileNavOpen(false)}
+                >
+                  Dashboard <ArrowRight className="w-4 h-4" />
+                </Link>
+              ) : (
+                <div className="flex flex-col gap-2">
+                  <Link to="/auth/login" className="btn btn-ghost w-full" onClick={() => setMobileNavOpen(false)}>
+                    Sign in
+                  </Link>
+                  <Link to="/auth/register" className="btn btn-primary w-full" onClick={() => setMobileNavOpen(false)}>
+                    Create free account
+                  </Link>
+                </div>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
+  );
+}
+
+// ── Footer — every page (public + member + admin) shares one SiteFooter ──────
+// (The old landing-only LandingFooter was removed: it used class names with no
+// matching CSS, which is exactly why the bottom looked broken/trashy.)
 
 export default function LandingLayout({ children }) {
-  const [dark, setDark] = useState(() => {
-    if (typeof window === 'undefined') return false;
-    return localStorage.getItem('shiarishta_theme:v2') === 'dark';
-  });
+  // Warm editorial light is the product default — see lib/theme.js. The
+  // versioned key means a stale `dark` from an older build cannot resurrect.
+  const [dark, setDark] = useState(readIsDark);
   const location = useLocation();
 
   useEffect(() => {
-    document.documentElement.classList.toggle('dark', dark);
-    document.documentElement.classList.toggle('light', !dark);
-    localStorage.setItem('shiarishta_theme:v2', dark ? 'dark' : 'light');
+    applyIsDark(dark);
   }, [dark]);
 
   return (
@@ -342,41 +553,50 @@ export default function LandingLayout({ children }) {
         initial={{ opacity: 0, y: 6 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.12, ease: [0.16, 1, 0.3, 1] }}
-        className="flex-1"
+        className="landing-main flex-1"
         style={{ paddingTop: 'var(--header-height)' }}
       >
         {children}
       </motion.main>
-      <LandingFooter />
+      <SiteFooter />
 
       {/* AI Assistant FAB */}
       <AIAssistant />
 
-      {/* Minimal mobile nav styles */}
+      {/* Mobile nav styles */}
       <style>{`
-        .landing-mobile-nav {
-          display: none;
-          flex-direction: column;
-          padding: 0.75rem 1.25rem 1.1rem;
-          gap: 0.2rem;
-          border-top: 1px solid var(--color-border-subtle);
-        }
-        .landing-mobile-nav.open { display: flex; }
-        .landing-mobile-nav a {
-          padding: 0.65rem 0.75rem;
+        .mobile-nav-link {
+          display: block;
+          padding: 0.875rem 1rem;
           border-radius: var(--radius-md);
-          font-weight: 550;
-          color: var(--color-ink-secondary);
+          font-size: 1.0625rem;
+          font-weight: 500;
+          color: var(--color-ink);
           text-decoration: none;
+          transition: all 0.15s ease;
         }
-        .landing-mobile-nav a:hover { background: var(--color-hover); color: var(--color-ink); }
+        .mobile-nav-link:hover,
+        .mobile-nav-link:focus {
+          background: var(--color-hover);
+          color: var(--color-primary);
+          outline: none;
+        }
+        .mobile-nav-link:focus-visible {
+          outline: 2px solid var(--color-primary);
+          outline-offset: 2px;
+        }
         .landing-cta-header-login { display: inline-flex; }
         .landing-cta-header { display: inline-flex; }
+        .landing-header-ai span { display: inline; }
         @media (max-width: 960px) {
           .landing-cta-header-login { display: none; }
+          .landing-header-ai span { display: none; }
         }
         @media (max-width: 640px) {
           .landing-cta-header { display: none; }
+        }
+        @media (min-width: 1024px) {
+          .landing-menu-btn { display: none !important; }
         }
       `}</style>
     </div>

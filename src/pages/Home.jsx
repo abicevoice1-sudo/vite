@@ -1,107 +1,247 @@
 import { Link } from 'react-router-dom';
-import { Shield, Eye, Users, Heart, ArrowRight, BadgeCheck, Lock } from 'lucide-react';
+import { motion, useReducedMotion } from 'framer-motion';
+import {
+  ArrowRight, BadgeCheck, BookOpen, CheckCircle2, Eye, EyeOff, Heart,
+  Lock, Sparkles, Users,
+} from 'lucide-react';
 import Layout from '../layouts/LandingLayout';
+import ProfileCard from '../components/ProfileCard.jsx';
+import { useAuth } from '../lib/auth/AuthContext';
+import { useProfiles } from '../lib/api/client';
 
-const stats = [
-  { value: '2,400+', label: 'Verified members' },
-  { value: '45+', label: 'Cities' },
-  { value: '8,500+', label: 'Matches' },
-  { value: '98%', label: 'Recommend' },
+// ── Reference-parity copy (shiarishta12.netlify.app) ────────────────────────
+const HERO_CHIPS = [
+  { icon: BadgeCheck, label: 'Verified women', className: 'c1' },
+  { icon: Sparkles, label: 'AI agents', className: 'c2' },
+  { icon: Lock, label: 'Photo privacy', className: 'c3' },
+  { icon: Users, label: 'Wali workflow', className: 'c4' },
 ];
 
-const steps = [
-  { num: '01', title: 'Create profile', desc: 'Share intentions privately.', tag: 'Intention' },
-  { num: '02', title: 'Verify', desc: 'Identity check.', tag: 'Verified' },
-  { num: '03', title: 'Match', desc: 'Curated matches.', tag: 'Family' },
+const QUIET_FEATURES = [
+  { icon: BadgeCheck, title: 'Verified intent', desc: 'Identity and marriage-intention checks before sensitive access opens.' },
+  { icon: EyeOff, title: 'Privacy-first photos', desc: 'Members can show photos publicly, after mutual interest, or only after matching.' },
+  { icon: Users, title: 'Family supported', desc: 'Wali and family workflows are built into the journey from the start.' },
+  { icon: Sparkles, title: 'Daily suggestions', desc: 'A limited number of higher-quality matches based on values, practice, and life stage.' },
 ];
 
-const features = [
-  { icon: Shield, title: 'Verified First', desc: 'Every member goes through identity + intention verification.' },
-  { icon: Eye, title: 'Privacy Built In', desc: 'Control photo visibility.' },
-  { icon: Users, title: 'Family Involvement', desc: 'Wali and guardian workflows.' },
-  { icon: Heart, title: 'Values-Based Matching', desc: 'Compatibility scored on faith and lifestyle.' },
+const TRUST_STEPS = [
+  { title: 'Intent assessment', desc: 'Marriage goals, religious practice, family background, and timeline.' },
+  { title: 'Verified profile', desc: 'Identity, intention, and safety checks create a higher-trust member pool.' },
+  { title: 'Private introduction', desc: 'Intro messages are limited, contact exchange requires agreement, and families can be included.' },
 ];
 
-const testimonials = [
-  { quote: 'Changed how my family approached this.', name: 'Zainab H.', role: 'London', photo: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=300&q=70' },
-  { quote: 'Privacy controls unlike anything else.', name: 'Omar F.', role: 'Toronto', photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=300&q=70' },
-  { quote: 'Met in March, nikah before year end.', name: 'Maryam & Y.', role: 'Chicago', photo: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=300&q=70' },
+const PREMIUM_TOOLS = [
+  'Verified profiles only access',
+  'Contact exchange after mutual agreement',
+  'Video introductions kept private',
+  'Profile insights for views and saves',
+  'Family-to-family communication tools',
+  'Nikah planning and guidance resources',
 ];
+
+const HERO_IMAGE = 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1200&q=80';
+
+// Scroll reveal helper — inert when the visitor prefers reduced motion.
+const reveal = (reduceMotion, delay = 0) => (reduceMotion
+  ? {}
+  : {
+      initial: { opacity: 0, y: 22 },
+      whileInView: { opacity: 1, y: 0 },
+      viewport: { once: true, margin: '-70px' },
+      transition: { delay, duration: 0.55, ease: [0.16, 1, 0.3, 1] },
+    });
 
 export default function Home() {
+  const reduceMotion = useReducedMotion();
+  const { isLoggedIn, user } = useAuth();
+  const { data } = useProfiles({});
+  const featured = (data || []).slice(0, 6);
+
   return (
     <Layout>
-      <main>
-        <section style={{ padding: 'clamp(3rem,7vw,6rem) 1.5rem', textAlign: 'center', maxWidth: '820px', margin: '0 auto' }}>
-          <span className="eyebrow" style={{ marginBottom: '1rem' }}>Nikah-first matchmaking</span>
-          <h1 style={{ fontSize: 'clamp(2rem,5vw,3.5rem)', fontWeight: 700, color: 'var(--color-ink)', lineHeight: 1.1, marginBottom: '1.25rem' }}>
-            Find your life partner with <span style={{ color: 'var(--color-primary)' }}>faith, privacy, and intention</span>.
-          </h1>
-          <p style={{ fontSize: '1.125rem', color: 'var(--color-ink-secondary)', lineHeight: 1.6, maxWidth: '600px', margin: '0 auto 2rem' }}>
-            Dignified, verified matchmaking with privacy controls and chaperone support.
+      <div className="hp-home">
+        {/* ── Elite hero ── */}
+        <section className="hp-hero">
+          <div className="hp-hero-inner">
+            <motion.div
+              className="hp-hero-copy"
+              {...(reduceMotion ? {} : {
+                initial: { opacity: 0, y: 26 },
+                animate: { opacity: 1, y: 0 },
+                transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] },
+              })}
+            >
+              <p className="hp-eyebrow"><span aria-hidden="true" /> Private Shia matchmaking</p>
+              <h1>{isLoggedIn ? `Welcome back, ${user?.displayName || "friend"}` : "Shiarishta"}</h1>
+              <p className="hp-lede">
+                A refined nikah-first platform where serious families can discover verified,
+                privacy-protected profiles with clarity, dignity, and intention.
+              </p>
+              <div className="hp-cta-row">
+                {isLoggedIn ? (<Link to="/dashboard" className="hp-btn-primary">Go to your dashboard <ArrowRight className="w-4 h-4" aria-hidden="true" /></Link>) : (<Link to="/profiles" className="hp-btn-primary">Browse profiles <ArrowRight className="w-4 h-4" aria-hidden="true" /></Link>)}
+                {isLoggedIn ? (<Link to="/profiles" className="hp-btn-ghost">Continue browsing</Link>) : (<Link to="/auth/register" className="hp-btn-ghost">Create free account</Link>)}
+              </div>
+            </motion.div>
+
+            <motion.div
+              className="hp-visual"
+              {...(reduceMotion ? {} : {
+                initial: { opacity: 0, y: 26, scale: 0.98 },
+                animate: { opacity: 1, y: 0, scale: 1 },
+                transition: { delay: 0.12, duration: 0.6, ease: [0.16, 1, 0.3, 1] },
+              })}
+            >
+              <div className="hp-visual-frame">
+                <img src={HERO_IMAGE} alt="Nikah celebration" loading="eager" decoding="async" />
+              </div>
+              {HERO_CHIPS.map(({ icon: Icon, label, className }, i) => (
+                <span
+                  key={label}
+                  className={`hp-chip ${className}`}
+                  style={reduceMotion ? undefined : { animationDelay: `${i * 0.7}s` }}
+                >
+                  <Icon className="w-4 h-4" aria-hidden="true" /> {label}
+                </span>
+              ))}
+              <div className="hp-float-card">
+                <span className="hp-float-icon" aria-hidden="true"><Heart className="w-4 h-4" /></span>
+                <div>
+                  <strong>96% values match</strong>
+                  <span>Limited daily matches</span>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+          <p className="hp-visual-caption">
+            <Lock className="w-3.5 h-3.5" aria-hidden="true" />
+            Photo access, guardian contact, and contact details can unlock only when both sides agree.
           </p>
-          <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-            <Link to="/profiles" className="button primary px-6 py-3 font-semibold flex items-center gap-2">Search profiles <ArrowRight className="w-4 h-4" /></Link>
-            <Link to="/register" className="button px-6 py-3 font-semibold flex items-center gap-2" style={{ background: 'var(--color-elevated)', color: 'var(--color-ink)', border: '1px solid var(--color-border)' }}>Join free</Link>
+        </section>
+
+        {/* ── Quiet feature grid ── */}
+        <section className="hp-features" aria-label="Platform principles">
+          {QUIET_FEATURES.map(({ icon: Icon, title, desc }, i) => (
+            <motion.article key={title} className="hp-feature" {...reveal(reduceMotion, i * 0.06)}>
+              <span className="hp-feature-icon"><Icon className="w-5 h-5" aria-hidden="true" /></span>
+              <h3>{title}</h3>
+              <p>{desc}</p>
+            </motion.article>
+          ))}
+        </section>
+
+        {/* ── Designed for trust (split + steps) ── */}
+        <section className="hp-section">
+          <div className="hp-split">
+            <motion.div className="hp-split-copy" {...reveal(reduceMotion)}>
+              <p className="hp-eyebrow"><span aria-hidden="true" /> Privacy by design</p>
+              <h2>Designed for trust</h2>
+              <p className="hp-lede">Attractive, simple, and protective by design.</p>
+              <div className="hp-member-cards">
+                <div className="hp-member-card">
+                  <span className="hp-feature-icon"><Sparkles className="w-4 h-4" aria-hidden="true" /></span>
+                  <div>
+                    <strong>For female members</strong>
+                    <p>Present themselves beautifully without giving up control.</p>
+                  </div>
+                </div>
+                <div className="hp-member-card">
+                  <span className="hp-feature-icon"><Eye className="w-4 h-4" aria-hidden="true" /></span>
+                  <div>
+                    <strong>For male members</strong>
+                    <p>See enough to understand compatibility, while private details open through respectful steps.</p>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+            <motion.ol className="hp-steps" {...reveal(reduceMotion, 0.1)}>
+              {TRUST_STEPS.map((step, i) => (
+                <li key={step.title}>
+                  <span className="hp-step-num" aria-hidden="true">{i + 1}</span>
+                  <div>
+                    <h3>{step.title}</h3>
+                    <p>{step.desc}</p>
+                  </div>
+                </li>
+              ))}
+            </motion.ol>
           </div>
         </section>
 
-        <section className="landing-section"><div className="landing-container"><div className="landing-stats">
-          {stats.map(s => (<div key={s.label}><div className="landing-stat-value">{s.value}</div><div className="landing-stat-label">{s.label}</div></div>))}
-        </div></div></section>
-
-        <section className="landing-section"><div className="landing-container"><div className="section-head"><h2 style={{ fontSize: 'clamp(1.5rem,3vw,2.25rem)', fontWeight: 700, color: 'var(--color-ink)' }}>How it works</h2><p>Simple, dignified steps.</p></div>
-          <div className="steps-grid">
-            {steps.map(s => (<div key={s.num} className="step-card"><div className="step-num">{s.num}</div><h3>{s.title}</h3><p>{s.desc}</p><span className="step-tag">{s.tag}</span></div>))}
+        {/* ── Featured profiles ── */}
+        <section className="hp-section">
+          <motion.div className="hp-section-head" {...reveal(reduceMotion)}>
+            <p className="hp-eyebrow"><span aria-hidden="true" /> Featured profiles</p>
+            <h2>Curated profiles that feel premium at first glance</h2>
+            <p className="hp-lede hp-lede-center">
+              A quiet look at the member experience — every profile is verified, privacy-protected, and intentional.
+            </p>
+          </motion.div>
+          <div className="profile-grid">
+            {(featured.length ? featured : Array.from({ length: 6 })).map((p, i) => (
+              <motion.div key={p?.id || i} {...reveal(reduceMotion, (i % 3) * 0.06)}>
+                {p ? (
+                  <ProfileCard profile={p} actions={false} />
+                ) : (
+                  <div className="profiles-card profiles-card-skeleton" aria-hidden="true">
+                    <div className="skeleton" style={{ height: 250 }} />
+                    <div className="pcard-body">
+                      <div className="skeleton" style={{ height: 12, width: '55%' }} />
+                      <div className="skeleton" style={{ height: 11, width: '70%' }} />
+                      <div className="skeleton" style={{ height: 11, width: '45%' }} />
+                    </div>
+                  </div>
+                )}
+              </motion.div>
+            ))}
           </div>
-        </div></section>
-
-        <section className="landing-section"><div className="landing-container"><div className="section-head"><h2 style={{ fontSize: 'clamp(1.5rem,3vw,2.25rem)', fontWeight: 700, color: 'var(--color-ink)' }}>Built around your values</h2></div>
-          <div className="features-grid">
-            {features.map(f => { const FI = f.icon; return (<div key={f.title} className="feature-card"><div className="feature-icon"><FI className="w-5 h-5" /></div><h3>{f.title}</h3><p>{f.desc}</p></div>); })}
+          <div className="hp-featured-cta">
+            {isLoggedIn ? (<Link to="/dashboard" className="hp-btn-primary">Go to your dashboard <ArrowRight className="w-4 h-4" aria-hidden="true" /></Link>) : (<Link to="/profiles" className="hp-btn-primary">Browse all profiles <ArrowRight className="w-4 h-4" aria-hidden="true" /></Link>)}
+            <span>{(data || []).length} curated members · {isLoggedIn ? "welcome back" : "free to join"}</span>
           </div>
-        </div></section>
-
-        <section className="landing-section"><div className="landing-container"><div className="section-head"><h2 style={{ fontSize: 'clamp(1.5rem,3vw,2.25rem)', fontWeight: 700, color: 'var(--color-ink)' }}>Stories from our community</h2></div>
-          <div className="testimonials-grid">
-            {testimonials.map(t => (<div key={t.name} className="testimonial-card"><img src={t.photo} alt={t.name} className="testimonial-img" /><p className="testimonial-quote">"{t.quote}"</p><p style={{ fontWeight: 600, color: 'var(--color-ink)', fontSize: '0.875rem' }}>{t.name}</p><p style={{ fontSize: '0.75rem', color: 'var(--color-ink-faint)' }}>{t.role}</p></div>))}
-          </div>
-        </div></section>
-
-        <section className="cta-banner">
-          <h2 style={{ fontSize: 'clamp(1.5rem,3vw,2.25rem)', fontWeight: 700, color: '#fff', marginBottom: '0.75rem' }}>Ready to begin?</h2>
-          <p style={{ color: 'rgba(255,255,255,0.85)', marginBottom: '1.5rem' }}>Join verified members seeking a halal path to marriage.</p>
-          <Link to="/register" className="button px-8 py-3 font-semibold" style={{ background: '#fff', color: 'var(--color-primary)' }}>Create free profile</Link>
         </section>
-      </main>
-      <style>{`
-        .landing-section{padding:clamp(3rem,6vw,5rem) 1.5rem}
-        .landing-container{max-width:1200px;margin:0 auto}
-        .landing-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1.5rem;text-align:center;padding:2rem;border-radius:var(--radius-xl);background:var(--color-elevated);border:1px solid var(--color-border)}
-        .landing-stat-value{font-size:clamp(1.5rem,3vw,2.25rem);font-weight:700;color:var(--color-ink)}
-        .landing-stat-label{font-size:0.8125rem;color:var(--color-ink-secondary);margin-top:0.25rem}
-        .section-head{text-align:center;max-width:600px;margin:0 auto 3rem}
-        .section-head h2{margin-bottom:0.75rem}
-        .section-head p{font-size:1rem;color:var(--color-ink-secondary)}
-        .eyebrow{display:inline-block;font-size:0.6875rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--color-primary);margin-bottom:0.75rem}
-        .steps-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem}
-        .step-card{padding:1.5rem;border-radius:var(--radius-lg);background:var(--color-elevated);border:1px solid var(--color-border)}
-        .step-num{font-family:var(--font-display);font-size:2rem;font-weight:600;color:var(--color-primary);margin-bottom:0.75rem}
-        .step-card h3{font-size:1.125rem;font-weight:600;color:var(--color-ink);margin-bottom:0.5rem}
-        .step-card p{font-size:0.875rem;color:var(--color-ink-secondary);line-height:1.6;margin-bottom:1rem}
-        .step-tag{display:inline-flex;font-size:0.6875rem;font-weight:600;text-transform:uppercase;color:var(--color-primary);background:var(--color-primary-subtle);padding:0.25rem 0.625rem;border-radius:var(--radius-full)}
-        .features-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1.5rem}
-        .feature-card{padding:1.5rem;border-radius:var(--radius-lg);background:var(--color-elevated);border:1px solid var(--color-border)}
-        .feature-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:1rem;background:var(--color-primary-subtle);color:var(--color-primary)}
-        .feature-card h3{font-size:1.125rem;font-weight:600;color:var(--color-ink);margin-bottom:0.5rem}
-        .feature-card p{font-size:0.875rem;color:var(--color-ink-secondary);line-height:1.6}
-        .testimonials-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem}
-        .testimonial-card{padding:1.5rem;border-radius:var(--radius-lg);background:var(--color-elevated);border:1px solid var(--color-border)}
-        .testimonial-img{width:44px;height:44px;border-radius:50%;object-fit:cover;margin-bottom:1rem}
-        .testimonial-quote{font-size:0.9375rem;color:var(--color-ink-secondary);lineHeight:1.6,marginBottom:1rem}
-        .cta-banner{max-width:640px;margin:0 auto;padding:3rem 1.5rem;border-radius:var(--radius-xl);background:linear-gradient(135deg,var(--color-primary),var(--color-violet));text-align:center}
-        @media(max-width:960px){.steps-grid,.features-grid,.testimonials-grid{grid-template-columns:1fr}.landing-stats{grid-template-columns:repeat(2,1fr)}}
-      `}</style>
+
+        {/* ── Premium experience ── */}
+        <section className="hp-section">
+          <div className="hp-premium">
+            <motion.div {...reveal(reduceMotion)}>
+              <p className="hp-eyebrow"><span aria-hidden="true" /> Premium experience</p>
+              <h2>Serious tools for serious nikah conversations</h2>
+              <p className="hp-lede">
+                Everything is built to protect dignity while keeping momentum toward nikah.
+              </p>
+              <div className="hp-cta-row">
+                <Link to={isLoggedIn ? "/dashboard" : "/auth/register"} className="hp-btn-primary">
+                  {isLoggedIn ? "Go to your dashboard" : "Create free account"} <ArrowRight className="w-4 h-4" aria-hidden="true" />
+                </Link>
+              </div>
+            </motion.div>
+            <motion.ul className="hp-checklist" {...reveal(reduceMotion, 0.1)}>
+              {PREMIUM_TOOLS.map((tool) => (
+                <li key={tool}>
+                  <CheckCircle2 className="w-4 h-4" aria-hidden="true" /> {tool}
+                </li>
+              ))}
+            </motion.ul>
+          </div>
+        </section>
+
+        {/* ── Guidance band ── */}
+        <section className="hp-section">
+          <motion.div className="hp-guidance" {...reveal(reduceMotion)}>
+            <div>
+              <p className="hp-eyebrow hp-eyebrow-light"><span aria-hidden="true" /> Guidance and community</p>
+              <h2>Trust beyond the profile</h2>
+              <p>Islamic guidance, events, and family testimonials build trust beyond the profile.</p>
+            </div>
+            <div className="hp-guidance-actions">
+              <Link to="/blog" className="hp-btn-gold">
+                <BookOpen className="w-4 h-4" aria-hidden="true" /> Read guidance
+              </Link>
+              <Link to="/community" className="hp-btn-outline-light">Visit community</Link>
+            </div>
+          </motion.div>
+        </section>
+      </div>
     </Layout>
   );
 }

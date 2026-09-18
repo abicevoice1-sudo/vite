@@ -4,7 +4,7 @@ import { useAuth } from '../lib/auth/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Moon, Search, Command, X, LayoutDashboard, Users, MessageCircle,
-  BookOpen, LifeBuoy, Settings, LogOut, User, Home, Menu, Sparkles,
+  BookOpen, LifeBuoy, Settings, LogOut, Home, Menu,
   Shield, BarChart3, MessageSquare
 } from 'lucide-react';
 import ThemeMenu from '../components/ThemeMenu';
@@ -270,6 +270,15 @@ export default function MainLayout({ children }) {
     document.documentElement.classList.toggle('light', !dark);
     localStorage.setItem('shiarishta_theme:v2', dark ? 'dark' : 'light');
   }, [dark]);
+
+  // Per user request: force light theme on initial load to match reference site
+  useEffect(() => {
+    const stored = localStorage.getItem('shiarishta_theme:v2');
+    if (stored === 'dark') {
+      // Override stored dark preference to force light theme
+      setDark(false);
+    }
+  }, []); // Run once on initial load
 
   const isActive = useCallback(
     (path) => location.pathname === path || location.pathname.startsWith(path + '/'),

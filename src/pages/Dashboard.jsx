@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import Layout from '../layouts/LandingLayout';
+import Layout from '../layouts/MainLayout';
 import { useAuth } from '../lib/auth/AuthContext';
 import { api } from '../lib/api/client';
 import { computeProfileCompleteness } from '../lib/onboardingData';
@@ -13,13 +13,11 @@ import {
 export default function Dashboard() {
   const { user } = useAuth();
   const [profiles, setProfiles] = useState([]);
-  const [myProfile, setMyProfile] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     api.getProfiles().then(p => {
       setProfiles(p);
-      setMyProfile(null);
       setLoading(false);
     }).catch(() => setLoading(false));
   }, []);
@@ -57,13 +55,13 @@ export default function Dashboard() {
       bg: 'var(--color-danger-subtle)',
       trend: topMatch ? 'with ' + topMatch.displayName : 'Browse profiles to find matches',
     },
-    {
+        {
       label: 'Active Conversations',
       value: '3',
       icon: MessageCircle,
       color: 'var(--color-success)',
       bg: 'var(--color-success-subtle)',
-      trend: '1 unread message',
+      trend: '1 unread message — demo data, not a real unread count',
     },
     {
       label: 'Profile Views',
@@ -71,7 +69,7 @@ export default function Dashboard() {
       icon: Eye,
       color: 'var(--color-accent)',
       bg: 'var(--color-accent-subtle)',
-      trend: '+12 this week',
+      trend: '+12 this week — demo figure',
     },
   ];
 
@@ -158,10 +156,10 @@ export default function Dashboard() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: i * 0.06, duration: 0.15, ease: [0.16, 1, 0.3, 1] }}
                   >
-                    <Link to={'/profiles/' + p.id} className="card card-interactive overflow-hidden block group">
-                      <div className="aspect-[4/3] overflow-hidden" style={{ background: 'var(--color-surface)' }}>
-                        <img src={p.photo} alt={p.displayName} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
-                      </div>
+                     <Link to={'/profiles/' + p.id} className="card card-interactive overflow-hidden block group">
+                       <div className="aspect-[4/3] overflow-hidden" style={{ background: 'var(--color-surface)' }}>
+                         <img src={p.photo} alt={p.displayName} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" onError={e => { e.currentTarget.style.display = 'none'; }} />
+                       </div>
                       <div className="p-3">
                         <p className="font-medium text-sm truncate" style={{ color: 'var(--color-ink)' }}>{p.displayName}, {p.age}</p>
                         <p className="text-xs truncate" style={{ color: 'var(--color-ink-secondary)' }}>{p.city}, {p.country}</p>

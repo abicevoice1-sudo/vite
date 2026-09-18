@@ -1,0 +1,745 @@
+{
+  "generatedAt": "2026-09-15T03:58:32.467Z",
+  "target": "http://localhost:5174",
+  "totalIssues": 72,
+  "severityBreakdown": {
+    "Critical": 0,
+    "High": 6,
+    "Medium": 65,
+    "Low": 1
+  },
+  "accountsTested": {
+    "admins": [
+      "admin@shiarishta.com",
+      "moderator@shiarishta.com"
+    ],
+    "users": [
+      "aaliyah@example.com",
+      "yusuf@example.com",
+      "maryam@example.com"
+    ],
+    "password": "Test1234!"
+  },
+  "issues": [
+    {
+      "id": "PAGE-COMMUNITY",
+      "severity": "Medium",
+      "account": "admin@shiarishta.com",
+      "page": "http://localhost:5174/community",
+      "steps": "Visit community",
+      "expected": "Clean load, no errors",
+      "actual": "A11Y: input no label: type=text",
+      "visual": "admin-super_community.png"
+    },
+    {
+      "id": "PAGE-CONTACT",
+      "severity": "Medium",
+      "account": "admin@shiarishta.com",
+      "page": "http://localhost:5174/contact",
+      "steps": "Visit contact",
+      "expected": "Clean load, no errors",
+      "actual": "A11Y: a href=\"#\": Ann Arbor, MI, United States; a href=\"#\": Urgent matters — 1–2 hours; a href=\"#\": General questions — 4–8 hours; a href=\"#\": Detailed feedback — 24 hours",
+      "visual": "admin-super_contact.png"
+    },
+    {
+      "id": "PAGE-PRICING",
+      "severity": "Medium",
+      "account": "admin@shiarishta.com",
+      "page": "http://localhost:5174/pricing",
+      "steps": "Visit pricing",
+      "expected": "Clean load, no errors",
+      "actual": "A11Y: btn no label: relative w-12 h-6 rounded-full",
+      "visual": "admin-super_pricing.png"
+    },
+    {
+      "id": "PAGE-SUPPORT",
+      "severity": "Medium",
+      "account": "admin@shiarishta.com",
+      "page": "http://localhost:5174/support",
+      "steps": "Visit support",
+      "expected": "Clean load, no errors",
+      "actual": "A11Y: input no label: type=text",
+      "visual": "admin-super_support.png"
+    },
+    {
+      "id": "PAGE-AGENTS",
+      "severity": "Medium",
+      "account": "admin@shiarishta.com",
+      "page": "http://localhost:5174/agents",
+      "steps": "Visit agents",
+      "expected": "Clean load, no errors",
+      "actual": "A11Y: input no label: type=text",
+      "visual": "admin-super_agents.png"
+    },
+    {
+      "id": "PAGE-SETTINGS",
+      "severity": "Medium",
+      "account": "admin@shiarishta.com",
+      "page": "http://localhost:5174/settings",
+      "steps": "Visit settings",
+      "expected": "Clean load, no errors",
+      "actual": "A11Y: input no label: type=text; input no label: type=email",
+      "visual": "admin-super_settings.png"
+    },
+    {
+      "id": "PAGE-ONBOARD",
+      "severity": "Medium",
+      "account": "admin@shiarishta.com",
+      "page": "http://localhost:5174/onboard",
+      "steps": "Visit onboard",
+      "expected": "Clean load, no errors",
+      "actual": "A11Y: input no label: type=text; input no label: type=number; input no label: type=text",
+      "visual": "admin-super_onboard.png"
+    },
+    {
+      "id": "PAGE-PROFILE-P1",
+      "severity": "Medium",
+      "account": "admin@shiarishta.com",
+      "page": "http://localhost:5174/profiles/p1",
+      "steps": "Visit profile-p1",
+      "expected": "Clean load, no errors",
+      "actual": "A11Y: btn no label: flex-1 aspect-square rounded-l; btn no label: flex-1 aspect-square rounded-l",
+      "visual": "admin-super_profile-p1.png"
+    },
+    {
+      "id": "PAGE-PROFILE-NOTFOUND",
+      "severity": "Medium",
+      "account": "admin@shiarishta.com",
+      "page": "http://localhost:5174/profiles/nonexistent",
+      "steps": "Visit profile-notfound",
+      "expected": "Clean load, no errors",
+      "actual": "PAGE ERRS: Empty state rendered (possible data load failure)",
+      "visual": "admin-super_profile-notfound.png"
+    },
+    {
+      "id": "PAGE-COMMUNITY-HYD",
+      "severity": "Medium",
+      "account": "admin@shiarishta.com",
+      "page": "http://localhost:5174/community/hyderabad",
+      "steps": "Visit community-hyd",
+      "expected": "Clean load, no errors",
+      "actual": "A11Y: input no label: type=text",
+      "visual": "admin-super_community-hyd.png"
+    },
+    {
+      "id": "NAV-settings",
+      "severity": "Medium",
+      "account": "admin@shiarishta.com",
+      "page": "/settings",
+      "steps": "Navigate sidebar to Settings",
+      "expected": "Clean load",
+      "actual": "input no label: type=text; input no label: type=email",
+      "visual": "admin-super_nav-_settings.png"
+    },
+    {
+      "id": "NAV-community",
+      "severity": "Medium",
+      "account": "admin@shiarishta.com",
+      "page": "/community",
+      "steps": "Navigate sidebar to Community",
+      "expected": "Clean load",
+      "actual": "input no label: type=text",
+      "visual": "admin-super_nav-_community.png"
+    },
+    {
+      "id": "NAV-support",
+      "severity": "Medium",
+      "account": "admin@shiarishta.com",
+      "page": "/support",
+      "steps": "Navigate sidebar to Support",
+      "expected": "Clean load",
+      "actual": "input no label: type=text",
+      "visual": "admin-super_nav-_support.png"
+    },
+    {
+      "id": "ONBOARD-002",
+      "severity": "High",
+      "account": "admin@shiarishta.com",
+      "page": "/onboard",
+      "steps": "Click Continue on empty form",
+      "expected": "Validation errors shown",
+      "actual": "No validation errors",
+      "visual": "admin-super_onboard-validation.png"
+    },
+    {
+      "id": "PAGE-COMMUNITY",
+      "severity": "Medium",
+      "account": "moderator@shiarishta.com",
+      "page": "http://localhost:5174/community",
+      "steps": "Visit community",
+      "expected": "Clean load, no errors",
+      "actual": "A11Y: input no label: type=text",
+      "visual": "admin-moderator_community.png"
+    },
+    {
+      "id": "PAGE-CONTACT",
+      "severity": "Medium",
+      "account": "moderator@shiarishta.com",
+      "page": "http://localhost:5174/contact",
+      "steps": "Visit contact",
+      "expected": "Clean load, no errors",
+      "actual": "A11Y: a href=\"#\": Ann Arbor, MI, United States; a href=\"#\": Urgent matters — 1–2 hours; a href=\"#\": General questions — 4–8 hours; a href=\"#\": Detailed feedback — 24 hours",
+      "visual": "admin-moderator_contact.png"
+    },
+    {
+      "id": "PAGE-PRICING",
+      "severity": "Medium",
+      "account": "moderator@shiarishta.com",
+      "page": "http://localhost:5174/pricing",
+      "steps": "Visit pricing",
+      "expected": "Clean load, no errors",
+      "actual": "A11Y: btn no label: relative w-12 h-6 rounded-full",
+      "visual": "admin-moderator_pricing.png"
+    },
+    {
+      "id": "PAGE-SUPPORT",
+      "severity": "Medium",
+      "account": "moderator@shiarishta.com",
+      "page": "http://localhost:5174/support",
+      "steps": "Visit support",
+      "expected": "Clean load, no errors",
+      "actual": "A11Y: input no label: type=text",
+      "visual": "admin-moderator_support.png"
+    },
+    {
+      "id": "PAGE-AGENTS",
+      "severity": "Medium",
+      "account": "moderator@shiarishta.com",
+      "page": "http://localhost:5174/agents",
+      "steps": "Visit agents",
+      "expected": "Clean load, no errors",
+      "actual": "A11Y: input no label: type=text",
+      "visual": "admin-moderator_agents.png"
+    },
+    {
+      "id": "PAGE-SETTINGS",
+      "severity": "Medium",
+      "account": "moderator@shiarishta.com",
+      "page": "http://localhost:5174/settings",
+      "steps": "Visit settings",
+      "expected": "Clean load, no errors",
+      "actual": "A11Y: input no label: type=text; input no label: type=email",
+      "visual": "admin-moderator_settings.png"
+    },
+    {
+      "id": "PAGE-ONBOARD",
+      "severity": "Medium",
+      "account": "moderator@shiarishta.com",
+      "page": "http://localhost:5174/onboard",
+      "steps": "Visit onboard",
+      "expected": "Clean load, no errors",
+      "actual": "A11Y: input no label: type=text; input no label: type=number; input no label: type=text",
+      "visual": "admin-moderator_onboard.png"
+    },
+    {
+      "id": "PAGE-PROFILE-P1",
+      "severity": "Medium",
+      "account": "moderator@shiarishta.com",
+      "page": "http://localhost:5174/profiles/p1",
+      "steps": "Visit profile-p1",
+      "expected": "Clean load, no errors",
+      "actual": "A11Y: btn no label: flex-1 aspect-square rounded-l; btn no label: flex-1 aspect-square rounded-l",
+      "visual": "admin-moderator_profile-p1.png"
+    },
+    {
+      "id": "PAGE-PROFILE-NOTFOUND",
+      "severity": "Medium",
+      "account": "moderator@shiarishta.com",
+      "page": "http://localhost:5174/profiles/nonexistent",
+      "steps": "Visit profile-notfound",
+      "expected": "Clean load, no errors",
+      "actual": "PAGE ERRS: Empty state rendered (possible data load failure)",
+      "visual": "admin-moderator_profile-notfound.png"
+    },
+    {
+      "id": "PAGE-COMMUNITY-HYD",
+      "severity": "Medium",
+      "account": "moderator@shiarishta.com",
+      "page": "http://localhost:5174/community/hyderabad",
+      "steps": "Visit community-hyd",
+      "expected": "Clean load, no errors",
+      "actual": "A11Y: input no label: type=text",
+      "visual": "admin-moderator_community-hyd.png"
+    },
+    {
+      "id": "NAV-settings",
+      "severity": "Medium",
+      "account": "moderator@shiarishta.com",
+      "page": "/settings",
+      "steps": "Navigate sidebar to Settings",
+      "expected": "Clean load",
+      "actual": "input no label: type=text; input no label: type=email",
+      "visual": "admin-moderator_nav-_settings.png"
+    },
+    {
+      "id": "NAV-community",
+      "severity": "Medium",
+      "account": "moderator@shiarishta.com",
+      "page": "/community",
+      "steps": "Navigate sidebar to Community",
+      "expected": "Clean load",
+      "actual": "input no label: type=text",
+      "visual": "admin-moderator_nav-_community.png"
+    },
+    {
+      "id": "NAV-support",
+      "severity": "Medium",
+      "account": "moderator@shiarishta.com",
+      "page": "/support",
+      "steps": "Navigate sidebar to Support",
+      "expected": "Clean load",
+      "actual": "input no label: type=text",
+      "visual": "admin-moderator_nav-_support.png"
+    },
+    {
+      "id": "ONBOARD-002",
+      "severity": "High",
+      "account": "moderator@shiarishta.com",
+      "page": "/onboard",
+      "steps": "Click Continue on empty form",
+      "expected": "Validation errors shown",
+      "actual": "No validation errors",
+      "visual": "admin-moderator_onboard-validation.png"
+    },
+    {
+      "id": "PAGE-COMMUNITY",
+      "severity": "Medium",
+      "account": "aaliyah@example.com",
+      "page": "http://localhost:5174/community",
+      "steps": "Visit community",
+      "expected": "Clean load, no errors",
+      "actual": "A11Y: input no label: type=text",
+      "visual": "user-aaliyah_community.png"
+    },
+    {
+      "id": "PAGE-CONTACT",
+      "severity": "Medium",
+      "account": "aaliyah@example.com",
+      "page": "http://localhost:5174/contact",
+      "steps": "Visit contact",
+      "expected": "Clean load, no errors",
+      "actual": "A11Y: a href=\"#\": Ann Arbor, MI, United States; a href=\"#\": Urgent matters — 1–2 hours; a href=\"#\": General questions — 4–8 hours; a href=\"#\": Detailed feedback — 24 hours",
+      "visual": "user-aaliyah_contact.png"
+    },
+    {
+      "id": "PAGE-PRICING",
+      "severity": "Medium",
+      "account": "aaliyah@example.com",
+      "page": "http://localhost:5174/pricing",
+      "steps": "Visit pricing",
+      "expected": "Clean load, no errors",
+      "actual": "A11Y: btn no label: relative w-12 h-6 rounded-full",
+      "visual": "user-aaliyah_pricing.png"
+    },
+    {
+      "id": "PAGE-SUPPORT",
+      "severity": "Medium",
+      "account": "aaliyah@example.com",
+      "page": "http://localhost:5174/support",
+      "steps": "Visit support",
+      "expected": "Clean load, no errors",
+      "actual": "A11Y: input no label: type=text",
+      "visual": "user-aaliyah_support.png"
+    },
+    {
+      "id": "PAGE-AGENTS",
+      "severity": "Medium",
+      "account": "aaliyah@example.com",
+      "page": "http://localhost:5174/agents",
+      "steps": "Visit agents",
+      "expected": "Clean load, no errors",
+      "actual": "A11Y: input no label: type=text",
+      "visual": "user-aaliyah_agents.png"
+    },
+    {
+      "id": "PAGE-SETTINGS",
+      "severity": "Medium",
+      "account": "aaliyah@example.com",
+      "page": "http://localhost:5174/settings",
+      "steps": "Visit settings",
+      "expected": "Clean load, no errors",
+      "actual": "A11Y: input no label: type=text; input no label: type=email",
+      "visual": "user-aaliyah_settings.png"
+    },
+    {
+      "id": "PAGE-ONBOARD",
+      "severity": "Medium",
+      "account": "aaliyah@example.com",
+      "page": "http://localhost:5174/onboard",
+      "steps": "Visit onboard",
+      "expected": "Clean load, no errors",
+      "actual": "A11Y: input no label: type=text; input no label: type=number; input no label: type=text",
+      "visual": "user-aaliyah_onboard.png"
+    },
+    {
+      "id": "PAGE-PROFILE-P1",
+      "severity": "Medium",
+      "account": "aaliyah@example.com",
+      "page": "http://localhost:5174/profiles/p1",
+      "steps": "Visit profile-p1",
+      "expected": "Clean load, no errors",
+      "actual": "A11Y: btn no label: flex-1 aspect-square rounded-l; btn no label: flex-1 aspect-square rounded-l",
+      "visual": "user-aaliyah_profile-p1.png"
+    },
+    {
+      "id": "PAGE-PROFILE-NOTFOUND",
+      "severity": "Medium",
+      "account": "aaliyah@example.com",
+      "page": "http://localhost:5174/profiles/nonexistent",
+      "steps": "Visit profile-notfound",
+      "expected": "Clean load, no errors",
+      "actual": "PAGE ERRS: Empty state rendered (possible data load failure)",
+      "visual": "user-aaliyah_profile-notfound.png"
+    },
+    {
+      "id": "PAGE-COMMUNITY-HYD",
+      "severity": "Medium",
+      "account": "aaliyah@example.com",
+      "page": "http://localhost:5174/community/hyderabad",
+      "steps": "Visit community-hyd",
+      "expected": "Clean load, no errors",
+      "actual": "A11Y: input no label: type=text",
+      "visual": "user-aaliyah_community-hyd.png"
+    },
+    {
+      "id": "NAV-community",
+      "severity": "Medium",
+      "account": "aaliyah@example.com",
+      "page": "/community",
+      "steps": "Navigate sidebar to Community",
+      "expected": "Clean load",
+      "actual": "input no label: type=text",
+      "visual": "user-aaliyah_nav-_community.png"
+    },
+    {
+      "id": "NAV-contact",
+      "severity": "Medium",
+      "account": "aaliyah@example.com",
+      "page": "/contact",
+      "steps": "Navigate sidebar to Contact",
+      "expected": "Clean load",
+      "actual": "a href=\"#\": Ann Arbor, MI, United States; a href=\"#\": Urgent matters — 1–2 hours; a href=\"#\": General questions — 4–8 hours; a href=\"#\": Detailed feedback — 24 hours",
+      "visual": "user-aaliyah_nav-_contact.png"
+    },
+    {
+      "id": "ONBOARD-002",
+      "severity": "High",
+      "account": "aaliyah@example.com",
+      "page": "/onboard",
+      "steps": "Click Continue on empty form",
+      "expected": "Validation errors shown",
+      "actual": "No validation errors",
+      "visual": "user-aaliyah_onboard-validation.png"
+    },
+    {
+      "id": "PAGE-COMMUNITY",
+      "severity": "Medium",
+      "account": "yusuf@example.com",
+      "page": "http://localhost:5174/community",
+      "steps": "Visit community",
+      "expected": "Clean load, no errors",
+      "actual": "A11Y: input no label: type=text",
+      "visual": "user-yusuf_community.png"
+    },
+    {
+      "id": "PAGE-CONTACT",
+      "severity": "Medium",
+      "account": "yusuf@example.com",
+      "page": "http://localhost:5174/contact",
+      "steps": "Visit contact",
+      "expected": "Clean load, no errors",
+      "actual": "A11Y: a href=\"#\": Ann Arbor, MI, United States; a href=\"#\": Urgent matters — 1–2 hours; a href=\"#\": General questions — 4–8 hours; a href=\"#\": Detailed feedback — 24 hours",
+      "visual": "user-yusuf_contact.png"
+    },
+    {
+      "id": "PAGE-PRICING",
+      "severity": "Medium",
+      "account": "yusuf@example.com",
+      "page": "http://localhost:5174/pricing",
+      "steps": "Visit pricing",
+      "expected": "Clean load, no errors",
+      "actual": "A11Y: btn no label: relative w-12 h-6 rounded-full",
+      "visual": "user-yusuf_pricing.png"
+    },
+    {
+      "id": "PAGE-SUPPORT",
+      "severity": "Medium",
+      "account": "yusuf@example.com",
+      "page": "http://localhost:5174/support",
+      "steps": "Visit support",
+      "expected": "Clean load, no errors",
+      "actual": "A11Y: input no label: type=text",
+      "visual": "user-yusuf_support.png"
+    },
+    {
+      "id": "PAGE-AGENTS",
+      "severity": "Medium",
+      "account": "yusuf@example.com",
+      "page": "http://localhost:5174/agents",
+      "steps": "Visit agents",
+      "expected": "Clean load, no errors",
+      "actual": "A11Y: input no label: type=text",
+      "visual": "user-yusuf_agents.png"
+    },
+    {
+      "id": "PAGE-SETTINGS",
+      "severity": "Medium",
+      "account": "yusuf@example.com",
+      "page": "http://localhost:5174/settings",
+      "steps": "Visit settings",
+      "expected": "Clean load, no errors",
+      "actual": "A11Y: input no label: type=text; input no label: type=email",
+      "visual": "user-yusuf_settings.png"
+    },
+    {
+      "id": "PAGE-ONBOARD",
+      "severity": "Medium",
+      "account": "yusuf@example.com",
+      "page": "http://localhost:5174/onboard",
+      "steps": "Visit onboard",
+      "expected": "Clean load, no errors",
+      "actual": "A11Y: input no label: type=text; input no label: type=number; input no label: type=text",
+      "visual": "user-yusuf_onboard.png"
+    },
+    {
+      "id": "PAGE-PROFILE-P1",
+      "severity": "Medium",
+      "account": "yusuf@example.com",
+      "page": "http://localhost:5174/profiles/p1",
+      "steps": "Visit profile-p1",
+      "expected": "Clean load, no errors",
+      "actual": "A11Y: btn no label: flex-1 aspect-square rounded-l; btn no label: flex-1 aspect-square rounded-l",
+      "visual": "user-yusuf_profile-p1.png"
+    },
+    {
+      "id": "PAGE-PROFILE-NOTFOUND",
+      "severity": "Medium",
+      "account": "yusuf@example.com",
+      "page": "http://localhost:5174/profiles/nonexistent",
+      "steps": "Visit profile-notfound",
+      "expected": "Clean load, no errors",
+      "actual": "PAGE ERRS: Empty state rendered (possible data load failure)",
+      "visual": "user-yusuf_profile-notfound.png"
+    },
+    {
+      "id": "PAGE-COMMUNITY-HYD",
+      "severity": "Medium",
+      "account": "yusuf@example.com",
+      "page": "http://localhost:5174/community/hyderabad",
+      "steps": "Visit community-hyd",
+      "expected": "Clean load, no errors",
+      "actual": "A11Y: input no label: type=text",
+      "visual": "user-yusuf_community-hyd.png"
+    },
+    {
+      "id": "NAV-community",
+      "severity": "Medium",
+      "account": "yusuf@example.com",
+      "page": "/community",
+      "steps": "Navigate sidebar to Community",
+      "expected": "Clean load",
+      "actual": "input no label: type=text",
+      "visual": "user-yusuf_nav-_community.png"
+    },
+    {
+      "id": "NAV-contact",
+      "severity": "Medium",
+      "account": "yusuf@example.com",
+      "page": "/contact",
+      "steps": "Navigate sidebar to Contact",
+      "expected": "Clean load",
+      "actual": "a href=\"#\": Ann Arbor, MI, United States; a href=\"#\": Urgent matters — 1–2 hours; a href=\"#\": General questions — 4–8 hours; a href=\"#\": Detailed feedback — 24 hours",
+      "visual": "user-yusuf_nav-_contact.png"
+    },
+    {
+      "id": "ONBOARD-002",
+      "severity": "High",
+      "account": "yusuf@example.com",
+      "page": "/onboard",
+      "steps": "Click Continue on empty form",
+      "expected": "Validation errors shown",
+      "actual": "No validation errors",
+      "visual": "user-yusuf_onboard-validation.png"
+    },
+    {
+      "id": "PAGE-COMMUNITY",
+      "severity": "Medium",
+      "account": "maryam@example.com",
+      "page": "http://localhost:5174/community",
+      "steps": "Visit community",
+      "expected": "Clean load, no errors",
+      "actual": "A11Y: input no label: type=text",
+      "visual": "user-maryam_community.png"
+    },
+    {
+      "id": "PAGE-CONTACT",
+      "severity": "Medium",
+      "account": "maryam@example.com",
+      "page": "http://localhost:5174/contact",
+      "steps": "Visit contact",
+      "expected": "Clean load, no errors",
+      "actual": "A11Y: a href=\"#\": Ann Arbor, MI, United States; a href=\"#\": Urgent matters — 1–2 hours; a href=\"#\": General questions — 4–8 hours; a href=\"#\": Detailed feedback — 24 hours",
+      "visual": "user-maryam_contact.png"
+    },
+    {
+      "id": "PAGE-PRICING",
+      "severity": "Medium",
+      "account": "maryam@example.com",
+      "page": "http://localhost:5174/pricing",
+      "steps": "Visit pricing",
+      "expected": "Clean load, no errors",
+      "actual": "A11Y: btn no label: relative w-12 h-6 rounded-full",
+      "visual": "user-maryam_pricing.png"
+    },
+    {
+      "id": "PAGE-SUPPORT",
+      "severity": "Medium",
+      "account": "maryam@example.com",
+      "page": "http://localhost:5174/support",
+      "steps": "Visit support",
+      "expected": "Clean load, no errors",
+      "actual": "A11Y: input no label: type=text",
+      "visual": "user-maryam_support.png"
+    },
+    {
+      "id": "PAGE-AGENTS",
+      "severity": "Medium",
+      "account": "maryam@example.com",
+      "page": "http://localhost:5174/agents",
+      "steps": "Visit agents",
+      "expected": "Clean load, no errors",
+      "actual": "A11Y: input no label: type=text",
+      "visual": "user-maryam_agents.png"
+    },
+    {
+      "id": "PAGE-SETTINGS",
+      "severity": "Medium",
+      "account": "maryam@example.com",
+      "page": "http://localhost:5174/settings",
+      "steps": "Visit settings",
+      "expected": "Clean load, no errors",
+      "actual": "A11Y: input no label: type=text; input no label: type=email",
+      "visual": "user-maryam_settings.png"
+    },
+    {
+      "id": "PAGE-ONBOARD",
+      "severity": "Medium",
+      "account": "maryam@example.com",
+      "page": "http://localhost:5174/onboard",
+      "steps": "Visit onboard",
+      "expected": "Clean load, no errors",
+      "actual": "A11Y: input no label: type=text; input no label: type=number; input no label: type=text",
+      "visual": "user-maryam_onboard.png"
+    },
+    {
+      "id": "PAGE-PROFILE-P1",
+      "severity": "Medium",
+      "account": "maryam@example.com",
+      "page": "http://localhost:5174/profiles/p1",
+      "steps": "Visit profile-p1",
+      "expected": "Clean load, no errors",
+      "actual": "A11Y: btn no label: flex-1 aspect-square rounded-l; btn no label: flex-1 aspect-square rounded-l",
+      "visual": "user-maryam_profile-p1.png"
+    },
+    {
+      "id": "PAGE-PROFILE-NOTFOUND",
+      "severity": "Medium",
+      "account": "maryam@example.com",
+      "page": "http://localhost:5174/profiles/nonexistent",
+      "steps": "Visit profile-notfound",
+      "expected": "Clean load, no errors",
+      "actual": "PAGE ERRS: Empty state rendered (possible data load failure)",
+      "visual": "user-maryam_profile-notfound.png"
+    },
+    {
+      "id": "PAGE-COMMUNITY-HYD",
+      "severity": "Medium",
+      "account": "maryam@example.com",
+      "page": "http://localhost:5174/community/hyderabad",
+      "steps": "Visit community-hyd",
+      "expected": "Clean load, no errors",
+      "actual": "A11Y: input no label: type=text",
+      "visual": "user-maryam_community-hyd.png"
+    },
+    {
+      "id": "NAV-community",
+      "severity": "Medium",
+      "account": "maryam@example.com",
+      "page": "/community",
+      "steps": "Navigate sidebar to Community",
+      "expected": "Clean load",
+      "actual": "input no label: type=text",
+      "visual": "user-maryam_nav-_community.png"
+    },
+    {
+      "id": "NAV-contact",
+      "severity": "Medium",
+      "account": "maryam@example.com",
+      "page": "/contact",
+      "steps": "Navigate sidebar to Contact",
+      "expected": "Clean load",
+      "actual": "a href=\"#\": Ann Arbor, MI, United States; a href=\"#\": Urgent matters — 1–2 hours; a href=\"#\": General questions — 4–8 hours; a href=\"#\": Detailed feedback — 24 hours",
+      "visual": "user-maryam_nav-_contact.png"
+    },
+    {
+      "id": "ONBOARD-002",
+      "severity": "High",
+      "account": "maryam@example.com",
+      "page": "/onboard",
+      "steps": "Click Continue on empty form",
+      "expected": "Validation errors shown",
+      "actual": "No validation errors",
+      "visual": "user-maryam_onboard-validation.png"
+    },
+    {
+      "id": "REG-001",
+      "severity": "High",
+      "account": "test1789444676255@example.com",
+      "page": "/auth/register",
+      "steps": "Register new account",
+      "expected": "Redirect to login/dashboard",
+      "actual": "Stayed at: http://localhost:5174/onboard",
+      "visual": "registration_03-after-register.png"
+    },
+    {
+      "id": "MOBILE-OVERFLOW",
+      "severity": "Medium",
+      "account": "mobile",
+      "page": "http://localhost:5174/auth/login",
+      "steps": "Mobile view: login",
+      "expected": "No horizontal overflow",
+      "actual": "Overflow: DIV.absolute -top-40 -left-40 w-[480px] h-[480px] rounded-full o w=480 vw=375; DIV.absolute -bottom-40 -right-40 w-[480px] h-[480px] rounded-fu w=480 vw=375",
+      "visual": "mobile_login.png"
+    },
+    {
+      "id": "MOBILE-OVERFLOW",
+      "severity": "Medium",
+      "account": "mobile",
+      "page": "http://localhost:5174/profiles",
+      "steps": "Mobile view: profiles",
+      "expected": "No horizontal overflow",
+      "actual": "Overflow: IMG.pcard-img privacy-blur w=382 vw=375; IMG.pcard-img privacy-blur w=382 vw=375; IMG.pcard-img privacy-blur w=382 vw=375; IMG.pcard-img privacy-blur w=382 vw=375; IMG.pcard-img privacy-blur w=382 vw=375; IMG.pcard-img privacy-blur w=382 vw=375; IMG.pcard-img privacy-blur w=382 vw=375",
+      "visual": "mobile_profiles.png"
+    },
+    {
+      "id": "MOBILE-SCROLL",
+      "severity": "Medium",
+      "account": "mobile",
+      "page": "http://localhost:5174/admin",
+      "steps": "Mobile view: admin",
+      "expected": "No horizontal scroll",
+      "actual": "Page wider than viewport",
+      "visual": "mobile_admin.png"
+    },
+    {
+      "id": "EDGE-001",
+      "severity": "Low",
+      "account": "guest",
+      "page": "/profiles/9999",
+      "steps": "Visit invalid profile ID",
+      "expected": "404 or not found message",
+      "actual": "Regular content shown",
+      "visual": "edge_invalid-profile.png"
+    }
+  ]
+}

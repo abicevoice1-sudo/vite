@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../lib/auth/AuthContext';
+import { analytics } from '../../lib/analytics';
 import { Eye, EyeOff, Mail, Lock, User, Sparkles, X } from 'lucide-react';
 
 export default function Register() {
@@ -26,7 +27,8 @@ export default function Register() {
     setError('');
     try {
       await register({ email: formData.email, password: formData.password, displayName: formData.displayName });
-      navigate('/onboard');
+      analytics.track('account_created', { browser_local: true });
+      navigate('/dashboard');
     } catch (err) {
       setError(err.message || 'Registration failed. Please try again.');
     } finally {
@@ -39,8 +41,9 @@ export default function Register() {
   return (
     <div className="relative min-h-screen flex items-center justify-center px-6 py-12 overflow-hidden" style={{ background: 'var(--color-canvas)' }}>
       {/* Ambient glows */}
-      <div className="absolute -top-40 -right-40 w-[480px] h-[480px] rounded-full opacity-20" style={{ background: 'radial-gradient(circle, #d4af69, transparent 65%)', filter: 'blur(40px)' }} />
-      <div className="absolute -bottom-40 -left-40 w-[480px] h-[480px] rounded-full opacity-20" style={{ background: 'radial-gradient(circle, #10b981, transparent 65%)', filter: 'blur(40px)' }} />
+      {/* Ambient glows */}
+      <div className="absolute top-0 right-0 w-64 h-64 rounded-full opacity-20" style={{ background: 'radial-gradient(circle, #d4af69, transparent 65%)', filter: 'blur(40px)' }} />
+      <div className="absolute bottom-0 left-0 w-64 h-64 rounded-full opacity-20" style={{ background: 'radial-gradient(circle, #10b981, transparent 65%)', filter: 'blur(40px)' }} />
 
       <div className="relative w-full max-w-md">
         <button
@@ -65,7 +68,7 @@ export default function Register() {
             Create your <span className="text-gradient">account</span>
           </h1>
           <p className="mt-2 text-sm" style={{ color: 'var(--color-ink-secondary)' }}>
-            Join a community of serious, verified members.
+            Demo build: accounts and sessions live in this browser only — not a production identity system.
           </p>
         </div>
 

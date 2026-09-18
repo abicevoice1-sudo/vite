@@ -100,15 +100,15 @@ function Field({ label, error, required, children, hint }) {
 
 const inputCls = 'w-full px-4 py-3 rounded-xl border bg-elevated text-sm text-ink placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary transition-all';
 
-function TextInput({ error, ...props }) {
-  return <input className={`${inputCls} ${error ? 'border-danger' : 'border-line/30'}`} {...props} />;
+function TextInput({ error, ariaLabel, ...props }) {
+  return <input className={`${inputCls} ${error ? 'border-danger' : 'border-line/30'}`} aria-label={ariaLabel} {...props} />;
 }
 
-function SelectInput({ value, onChange, options, placeholder = 'Select', error }) {
+function SelectInput({ value, onChange, options, placeholder = 'Select', error, ariaLabel, ...props }) {
   return (
     <div className="relative">
-      <select value={value} onChange={onChange} aria-invalid={!!error}
-        className={`${inputCls} appearance-none pr-10 ${error ? 'border-danger' : 'border-line/30'}`}>
+      <select value={value} onChange={onChange} aria-invalid={!!error} aria-label={ariaLabel}
+        className={`${inputCls} appearance-none pr-10 ${error ? 'border-danger' : 'border-line/30'}`} {...props}>
         <option value="">{placeholder}</option>
         {options.map(o => {
           const val = typeof o === 'string' ? o : o.value;
@@ -390,30 +390,30 @@ function StepAbout({ data, update, errors }) {
     <div className="space-y-5">
       <h2 className="text-xl font-bold text-ink">The essentials</h2>
       <Field label="Display name" required error={errors.displayName} hint="What other members see — first name & initial is common, e.g. 'Zainab H.'">
-        <TextInput value={data.displayName} onChange={e => update('displayName', e.target.value)} placeholder="Your display name" error={errors.displayName} maxLength={40} />
+        <TextInput value={data.displayName} onChange={e => update('displayName', e.target.value)} placeholder="Your display name" ariaLabel="Display name" error={errors.displayName} maxLength={40} />
       </Field>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Field label="I am a" required error={errors.gender}>
-          <SelectInput value={data.gender} onChange={e => { update('gender', e.target.value); if (data.modesty) update('modesty', ''); }} error={errors.gender} placeholder="Select" options={[{ value: 'female', label: 'Woman' }, { value: 'male', label: 'Man' }]} />
+          <SelectInput value={data.gender} onChange={e => { update('gender', e.target.value); if (data.modesty) update('modesty', ''); }} error={errors.gender} placeholder="Select" options={[{ value: 'female', label: 'Woman' }, { value: 'male', label: 'Man' }]} ariaLabel="Gender" />
         </Field>
         <Field label="Looking for a" required error={errors.seekingGender}>
-          <SelectInput value={data.seekingGender} onChange={e => update('seekingGender', e.target.value)} error={errors.seekingGender} placeholder="Select" options={[{ value: 'female', label: 'Woman' }, { value: 'male', label: 'Man' }]} />
+          <SelectInput value={data.seekingGender} onChange={e => update('seekingGender', e.target.value)} error={errors.seekingGender} placeholder="Select" options={[{ value: 'female', label: 'Woman' }, { value: 'male', label: 'Man' }]} ariaLabel="Looking for" />
         </Field>
         <Field label="Age" required error={errors.age}>
-          <TextInput type="number" min="18" max="100" value={data.age} onChange={e => update('age', e.target.value)} placeholder="e.g. 27" error={errors.age} />
+          <TextInput type="number" min="18" max="100" value={data.age} onChange={e => update('age', e.target.value)} placeholder="e.g. 27" ariaLabel="Age" error={errors.age} />
         </Field>
         <Field label="Height">
-          <SelectInput value={data.height} onChange={e => update('height', e.target.value)} options={HEIGHT_OPTIONS} placeholder="Optional" />
+          <SelectInput value={data.height} onChange={e => update('height', e.target.value)} options={HEIGHT_OPTIONS} placeholder="Optional" ariaLabel="Height" />
         </Field>
         <Field label="City" required error={errors.city}>
-          <TextInput value={data.city} onChange={e => update('city', e.target.value)} placeholder="e.g. Chicago" error={errors.city} />
+          <TextInput value={data.city} onChange={e => update('city', e.target.value)} placeholder="e.g. Chicago" ariaLabel="City" error={errors.city} />
         </Field>
         <Field label="Country" required error={errors.country}>
-          <SelectInput value={data.country} onChange={e => update('country', e.target.value)} options={COUNTRIES} error={errors.country} />
+          <SelectInput value={data.country} onChange={e => update('country', e.target.value)} options={COUNTRIES} error={errors.country} ariaLabel="Country" />
         </Field>
       </div>
       <Field label="Marital status">
-        <SelectInput value={data.maritalStatus} onChange={e => update('maritalStatus', e.target.value)} options={MARITAL_STATUS_OPTIONS} placeholder="Select" />
+        <SelectInput value={data.maritalStatus} onChange={e => update('maritalStatus', e.target.value)} options={MARITAL_STATUS_OPTIONS} placeholder="Select" ariaLabel="Marital status" />
       </Field>
     </div>
   );
@@ -428,24 +428,24 @@ function StepFaith({ data, update, errors }) {
         <h2 className="text-xl font-bold text-ink">Your deen, your way</h2>
         <p className="text-sm text-muted mt-1">These answers power faithful, like-for-like matching — answer with honesty, not aspiration.</p>
       </div>
-      <Field label="Sect / community" required error={errors.sect}>
-        <SelectInput value={data.sect} onChange={e => update('sect', e.target.value)} options={SECTS} error={errors.sect} />
-      </Field>
+        <Field label="Sect / community" required error={errors.sect}>
+          <SelectInput value={data.sect} onChange={e => update('sect', e.target.value)} options={SECTS} error={errors.sect} ariaLabel="Sect" />
+        </Field>
       <Field label="Religiosity" required error={errors.religiosity}>
         <OptionCards value={data.religiosity} onChange={v => update('religiosity', v)} options={RELIGIOSITY_LEVELS} />
       </Field>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Field label="Daily prayers" required error={errors.prayer}>
-          <SelectInput value={data.prayer} onChange={e => update('prayer', e.target.value)} options={PRAYER_OPTIONS} error={errors.prayer} />
+          <SelectInput value={data.prayer} onChange={e => update('prayer', e.target.value)} options={PRAYER_OPTIONS} error={errors.prayer} ariaLabel="Daily prayers" />
         </Field>
         <Field label="Marja' followed" hint="The scholar you do taqleed of, if any">
-          <SelectInput value={data.marja} onChange={e => update('marja', e.target.value)} options={MARJA_OPTIONS} placeholder="Select / not yet" />
+          <SelectInput value={data.marja} onChange={e => update('marja', e.target.value)} options={MARJA_OPTIONS} placeholder="Select / not yet" ariaLabel="Marja followed" />
         </Field>
         <Field label={data.gender === 'male' ? 'Modesty practice' : 'Hijab & modesty'}>
-          <SelectInput value={data.modesty} onChange={e => update('modesty', e.target.value)} options={modestyOptions} placeholder="Optional" />
+          <SelectInput value={data.modesty} onChange={e => update('modesty', e.target.value)} options={modestyOptions} placeholder="Optional" ariaLabel="Modesty practice" />
         </Field>
         <Field label="Dietary practice">
-          <SelectInput value={data.diet} onChange={e => update('diet', e.target.value)} options={DIET_OPTIONS} placeholder="Optional" />
+          <SelectInput value={data.diet} onChange={e => update('diet', e.target.value)} options={DIET_OPTIONS} placeholder="Optional" ariaLabel="Dietary practice" />
         </Field>
       </div>
     </div>
@@ -465,14 +465,14 @@ function StepLineage({ data, update, errors, toggleIn }) {
       </Field>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Field label="Ethnicity / heritage" required error={errors.ethnicity}>
-          <SelectInput value={data.ethnicity} onChange={e => update('ethnicity', e.target.value)} options={ETHNICITIES} error={errors.ethnicity} />
+          <SelectInput value={data.ethnicity} onChange={e => update('ethnicity', e.target.value)} options={ETHNICITIES} error={errors.ethnicity} ariaLabel="Ethnicity" />
         </Field>
         <Field label="Citizenships" hint="Select all that apply — dual citizens welcome">
           <CitizenshipPicker values={data.citizenships} onToggle={v => toggleIn('citizenships', v)} />
         </Field>
       </div>
       <Field label="Languages you speak" required error={errors.languages}>
-        <ChipGroup values={data.languages} onToggle={v => toggleIn('languages', v)} options={LANGUAGES} />
+        <ChipGroup values={data.languages} onToggle={v => toggleIn('languages', v)} options={LANGUAGES} ariaLabel="Languages" />
       </Field>
     </div>
   );
@@ -512,15 +512,15 @@ function StepCareer({ data, update, errors }) {
         <p className="text-sm text-muted mt-1">Stability and ambition are attractive — share your path.</p>
       </div>
       <Field label="Education" required error={errors.educationLevel}>
-        <SelectInput value={data.educationLevel} onChange={e => update('educationLevel', e.target.value)} options={EDUCATION_OPTIONS} error={errors.educationLevel} />
+        <SelectInput value={data.educationLevel} onChange={e => update('educationLevel', e.target.value)} options={EDUCATION_OPTIONS} error={errors.educationLevel} ariaLabel="Education" />
       </Field>
       <Field label="Profession" required error={errors.profession} hint="What you do — 'Student', 'Software Engineer', 'Homemaker' all welcome">
-        <TextInput value={data.profession} onChange={e => update('profession', e.target.value)} placeholder="Your profession or field of study" error={errors.profession} maxLength={60} />
+          <TextInput value={data.profession} onChange={e => update('profession', e.target.value)} placeholder="Your profession or field of study" ariaLabel="Profession" error={errors.profession} maxLength={60} />
       </Field>
       <Field label="Income range" hint="Optional — some families ask, others prefer it stays private. You control visibility.">
-        <SelectInput value={data.incomeRange} onChange={e => update('incomeRange', e.target.value)}
-          options={['Prefer not to say', 'Under $40k', '$40k – $75k', '$75k – $120k', '$120k – $200k', '$200k+']}
-          placeholder="Optional" />
+          <SelectInput value={data.incomeRange} onChange={e => update('incomeRange', e.target.value)}
+           options={['Prefer not to say', 'Under $40k', '$40k – $75k', '$75k – $120k', '$120k – $200k', '$200k+']}
+           placeholder="Optional" ariaLabel="Income range" />
       </Field>
     </div>
   );
@@ -545,10 +545,10 @@ function StepIntentions({ data, update, errors }) {
       </Field>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Field label="Current children status">
-          <SelectInput value={data.childrenStatus} onChange={e => update('childrenStatus', e.target.value)} options={CHILDREN_OPTIONS} placeholder="Select" />
+          <SelectInput value={data.childrenStatus} onChange={e => update('childrenStatus', e.target.value)} options={CHILDREN_OPTIONS} placeholder="Select" ariaLabel="Children status" />
         </Field>
         <Field label="Views on children">
-          <SelectInput value={data.childrenPlans} onChange={e => update('childrenPlans', e.target.value)} options={CHILDREN_PLANS_OPTIONS} placeholder="Select" />
+          <SelectInput value={data.childrenPlans} onChange={e => update('childrenPlans', e.target.value)} options={CHILDREN_PLANS_OPTIONS} placeholder="Select" ariaLabel="Views on children" />
         </Field>
       </div>
     </div>
@@ -631,10 +631,10 @@ function StepPrivacy({ data, update, errors }) {
           <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
               <Field label="Guardian's name" required error={errors.guardianName}>
-                <TextInput value={data.guardianName} onChange={e => update('guardianName', e.target.value)} placeholder="e.g. Muhammad H. (father)" error={errors.guardianName} />
+                <TextInput value={data.guardianName} onChange={e => update('guardianName', e.target.value)} placeholder="e.g. Muhammad H. (father)" error={errors.guardianName} ariaLabel="Guardian's name" />
               </Field>
               <Field label="Guardian's email" required error={errors.guardianEmail} hint="They'll receive a secure invite to co-manage">
-                <TextInput type="email" value={data.guardianEmail} onChange={e => update('guardianEmail', e.target.value)} placeholder="guardian@email.com" error={errors.guardianEmail} />
+                <TextInput type="email" value={data.guardianEmail} onChange={e => update('guardianEmail', e.target.value)} placeholder="guardian@email.com" error={errors.guardianEmail} ariaLabel="Guardian's email" />
               </Field>
             </div>
           </motion.div>
@@ -701,12 +701,12 @@ function StepReview({ data, goTo, update, errors }) {
       <Field label="About you" required error={errors.bio} hint={`${data.bio.trim().length}/30 characters minimum`}>
         <textarea rows={4} value={data.bio} onChange={e => update('bio', e.target.value)}
           placeholder="Tell others about yourself, your values, and what a peaceful home looks like to you…"
-          className={`${inputCls} resize-none ${errors.bio ? 'border-danger' : 'border-line/30'}`} maxLength={1200} />
+          className={`${inputCls} resize-none ${errors.bio ? 'border-danger' : 'border-line/30'}`} maxLength={1200} aria-label="About you" />
       </Field>
       <Field label="What you're looking for" required error={errors.lookingFor} hint={`${data.lookingFor.trim().length}/20 characters minimum`}>
         <textarea rows={3} value={data.lookingFor} onChange={e => update('lookingFor', e.target.value)}
           placeholder="Describe the partner and marriage you're hoping for…"
-          className={`${inputCls} resize-none ${errors.lookingFor ? 'border-danger' : 'border-line/30'}`} maxLength={800} />
+          className={`${inputCls} resize-none ${errors.lookingFor ? 'border-danger' : 'border-line/30'}`} maxLength={800} aria-label="What you are looking for" />
       </Field>
 
       <div className="p-3.5 rounded-xl bg-success/5 border border-success/15 flex items-start gap-2.5">

@@ -1,6 +1,6 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Heart, Bookmark, MapPin, Shield, ChevronRight, Sparkles, Check } from 'lucide-react';
+import { Heart, Bookmark, MapPin, Shield, Sparkles, Check } from 'lucide-react';
 
 /**
  * CuratedMatchFeed — Intentional profile browsing for marriage-minded users.
@@ -32,7 +32,7 @@ export default function CuratedMatchFeed({ profiles = [], onExpressInterest }) {
 
     setTimeout(() => {
       setCurrentIndex(i => i + 1);
-      setInteriting(false);
+      setInterested(false);
       setSaved(false);
       setExiting(false);
       setExitDirection(0);

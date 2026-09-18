@@ -43,7 +43,7 @@ const sections = [
     id: 'payments',
     title: '7. Payments & Subscriptions',
     icon: FileText,
-    content: 'Paid plans auto-renew unless cancelled. You may cancel anytime — access continues through the paid period. Refunds available within 7 days of purchase (money-back guarantee). Price changes take effect at the next billing cycle with 30 days\' notice. Discreet billing: invoices show "Shiarishta" only.'
+    content: 'Early access is free — there are no payments, subscriptions, or billing of any kind in this build, and you will never be asked for payment details. If paid membership is introduced later, these terms will be updated and members will be notified before any charge could occur.'
   },
   {
     id: 'termination',

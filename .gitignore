@@ -21,3 +21,7 @@ Thumbs.db
 .screenshots/
 *.png
 !public/**/*.png
+node_modules
+node_modules
+node_modules
+node_modules

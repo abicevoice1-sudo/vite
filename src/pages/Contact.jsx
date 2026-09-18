@@ -1,8 +1,7 @@
 import { motion } from 'framer-motion';
 import { useState } from 'react';
 import Layout from '../layouts/LandingLayout';
-import { useToast } from '../lib/useToast';
-import { Mail, Phone, MapPin, Clock, Send, CheckCircle } from 'lucide-react';
+import { Mail, Phone, MapPin, Clock, Send } from 'lucide-react';
 
 const CONTACT_METHODS = [
   { icon: Mail, title: 'Email Support', desc: 'Get help within hours', links: [
@@ -13,31 +12,24 @@ const CONTACT_METHODS = [
     { label: '+1 (555) 123-4567', href: 'tel:+15551234567' },
   ]},
   { icon: MapPin, title: 'Headquarters', desc: 'Serving communities worldwide', links: [
-    { label: 'Ann Arbor, MI, United States', href: '#' },
+    { label: 'Ann Arbor, MI, United States', href: 'https://maps.google.com/?q=Ann+Arbor,+MI+USA' },
   ]},
   { icon: Clock, title: 'Response Time', desc: 'We aim to reply fast', links: [
-    { label: 'Urgent matters — 1–2 hours', href: '#' },
-    { label: 'General questions — 4–8 hours', href: '#' },
-    { label: 'Detailed feedback — 24 hours', href: '#' },
+    { label: 'Urgent matters — 1–2 hours', href: 'mailto:support@shiarishta.com' },
+    { label: 'General questions — 4–8 hours', href: 'mailto:support@shiarishta.com' },
+    { label: 'Detailed feedback — 24 hours', href: 'mailto:support@shiarishta.com' },
   ]},
 ];
 
 export default function Contact() {
   const [formData, setFormData] = useState({ name: '', email: '', subject: '', message: '' });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
-  const { addToast } = useToast();
+  const [submissionError, setSubmissionError] = useState('');
 
   const handleChange = (e) => setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    setIsSubmitting(true);
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    setIsSubmitting(false);
-    setIsSuccess(true);
-    setFormData({ name: '', email: '', subject: '', message: '' });
-    addToast('Message sent successfully!', 'success');
+    setSubmissionError('Message not sent. Online contact delivery is unavailable. Your draft has been kept on this page; copy it before leaving or reloading.');
   };
 
   const inputCls = 'w-full px-4 py-3 rounded-xl border border-line/30 bg-elevated text-sm text-ink placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary transition-all';
@@ -68,17 +60,10 @@ export default function Contact() {
 
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
             className="bg-elevated rounded-2xl border border-line/20 shadow-sm p-6 sm:p-8">
-            {isSuccess ? (
-              <div className="text-center py-10">
-                <CheckCircle className="w-14 h-14 text-success mx-auto mb-4" />
-                <h3 className="text-xl font-bold text-ink">Message Sent!</h3>
-                <p className="text-muted text-sm mt-2 mb-6">We'll get back to you within 24 hours.</p>
-                <button onClick={() => setIsSuccess(false)} className="button primary px-6 py-2.5 text-sm">Send Another</button>
-              </div>
-            ) : (
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <h2 className="text-xl font-bold text-ink mb-1">Send a Message</h2>
-                <p className="text-sm text-muted mb-4">Fill out the form below and we'll respond promptly.</p>
+              <form onSubmit={handleSubmit} className="space-y-4" aria-describedby="contact-unavailable">
+                <h2 className="text-xl font-bold text-ink mb-1">Contact form unavailable</h2>
+                <p id="contact-unavailable" role="status" className="text-sm text-muted mb-4">Online message delivery is not connected. This form cannot send messages or request support. Drafts stay on this page only; copy your text before leaving or reloading.</p>
+                {submissionError && <p role="alert" className="text-sm text-ink">{submissionError}</p>}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label htmlFor="contactName" className="text-xs font-semibold text-muted mb-1 block">Full Name *</label>
@@ -97,11 +82,10 @@ export default function Contact() {
                   <label htmlFor="contactMessage" className="text-xs font-semibold text-muted mb-1 block">Message *</label>
                   <textarea id="contactMessage" name="message" value={formData.message} onChange={handleChange} required rows={5} placeholder="Tell us more..." className={`${inputCls} resize-none`} />
                 </div>
-                <button type="submit" disabled={isSubmitting} className="button primary px-8 py-3 font-semibold flex items-center gap-2 disabled:opacity-60">
-                  {isSubmitting ? <><span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" /> Sending…</> : <><Send className="w-4 h-4" /> Send Message</>}
+                <button type="submit" disabled aria-describedby="contact-unavailable" className="button primary px-8 py-3 font-semibold flex items-center gap-2 disabled:opacity-60">
+                  <Send className="w-4 h-4" /> Sending unavailable
                 </button>
               </form>
-            )}
           </motion.div>
         </div>
       </main>

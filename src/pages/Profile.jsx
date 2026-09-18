@@ -1,8 +1,9 @@
 import { Link, useParams } from 'react-router-dom';
 import Layout from '../layouts/LandingLayout';
 import { api } from '../lib/api/client';
+import { analytics } from '../lib/analytics';
 import { useState, useEffect } from 'react';
-import { ArrowLeft, ShieldCheck, MapPin, Heart, MessageCircle, Bookmark, Lock, Users, Award, Sparkles, BadgeCheck } from 'lucide-react';
+import { ArrowLeft, ShieldCheck, MapPin, Heart, MessageCircle, Bookmark, Lock, Users, Award, Sparkles, BadgeCheck, Flag } from 'lucide-react';
 import CompatibilityIndex from '../components/CompatibilityIndex';
 import { computeCompatibility } from '../lib/compatibility';
 
@@ -18,7 +19,7 @@ export default function Profile() {
   const [shortlisted, setShortlisted] = useState(false);
 
   useEffect(() => {
-    if (id) { api.getProfile(id).then(p => { setProfile({ ...p, gallery: [p.photo, ...GX] }); }).catch(() => setError('Not found')).finally(() => setLoading(false)); }
+    if (id) { api.getProfile(id).then(p => { setProfile({ ...p, gallery: [p.photo, ...GX] }); analytics.track('profile_viewed', { id }); }).catch(() => setError('Not found')).finally(() => setLoading(false)); }
   }, [id]);
 
   const compat = profile ? computeCompatibility(profile) : null;
@@ -38,19 +39,30 @@ export default function Profile() {
           <div className="space-y-4 lg:sticky lg:top-24 self-start">
             <div className="rounded-2xl overflow-hidden shadow-lg" style={{ background: 'var(--color-elevated)', border: '1px solid var(--color-border)' }}>
               <div className="aspect-[3/4] relative" style={{ background: 'var(--color-surface)' }}>
-                <img src={profile.gallery[activePhoto]} alt={profile.displayName} className="w-full h-full object-cover" />
+                 <img src={profile.gallery[activePhoto]} alt={profile.displayName} className="w-full h-full object-cover" onError={e => { e.currentTarget.style.display = 'none'; }} />
                 {verificationLabel && (<div className="float-card-badge-match"><ShieldCheck className="w-3 h-3" /> {verificationLabel}</div>)}
                 {profile.photosVisibility === 'private' && (<div className="float-card-lock"><div className="float-card-lock-inner"><Lock className="w-4 h-4" /> Private</div></div>)}
               </div>
               {profile.gallery.length > 1 && (
                 <div className="flex gap-2 p-3">
-                  {profile.gallery.map((photo, i) => (<button key={i} onClick={() => setActivePhoto(i)} className="flex-1 aspect-square rounded-lg overflow-hidden" style={{ outline: i === activePhoto ? '2px solid var(--color-primary)' : 'none', opacity: i === activePhoto ? 1 : 0.6 }}><img src={photo} alt="" className="w-full h-full object-cover" /></button>))}
+                   {profile.gallery.map((photo, i) => (<button key={i} onClick={() => setActivePhoto(i)} aria-label={`View photo ${i + 1} of ${profile.displayName}`} className="flex-1 aspect-square rounded-lg overflow-hidden" style={{ outline: i === activePhoto ? '2px solid var(--color-primary)' : 'none', opacity: i === activePhoto ? 1 : 0.6 }}><img src={photo} alt="" className="w-full h-full object-cover" onError={e => { e.currentTarget.style.display = 'none'; }} /></button>))}
                 </div>
               )}
             </div>
             <button onClick={() => setShortlisted(!shortlisted)} className="w-full button flex items-center justify-center gap-2 py-2.5 font-semibold text-sm" style={{ background: shortlisted ? 'var(--color-primary)' : 'var(--color-elevated)', color: shortlisted ? '#fff' : 'var(--color-ink)', border: '1px solid var(--color-border)' }}>
               <Bookmark className="w-4 h-4" style={{ fill: shortlisted ? '#fff' : 'none' }} /> {shortlisted ? 'Shortlisted' : 'Shortlist'}
             </button>
+            <a
+              href={`mailto:support@shiarishta.com?subject=${encodeURIComponent('Report profile: ' + (profile.displayName || id))}&body=${encodeURIComponent(`Reporting profile: ${profile.displayName || id}\nProfile URL: ${window.location.href}\n\nReason (please describe):\n\n`)}`}
+              onClick={() => analytics.track('profile_reported', { id, channel: 'mailto' })}
+              className="flex items-center justify-center gap-1.5 text-xs py-2 hover:underline"
+              style={{ color: 'var(--color-ink-faint)' }}
+            >
+              <Flag className="w-3.5 h-3.5" /> Report this profile
+            </a>
+            <p className="text-[11px] text-center" style={{ color: 'var(--color-ink-faint)' }}>
+              Opens your email app addressed to our safety team. Reports are reviewed by a person.
+            </p>
           </div>
           <div className="space-y-5">
             <div className="p-5 rounded-2xl" style={{ background: 'var(--color-elevated)', border: '1px solid var(--color-border)' }}>
@@ -65,7 +77,7 @@ export default function Profile() {
                   </p>
                 </div>
                 <div className="flex gap-2">
-                  <button onClick={() => setInterestSent(!interestSent)} className="button primary px-4 py-2 text-sm font-semibold flex items-center gap-1.5">
+                  <button onClick={() => { setInterestSent(!interestSent); if (!interestSent) analytics.track('interest_sent', { id }); }} className="button primary px-4 py-2 text-sm font-semibold flex items-center gap-1.5">
                     <Heart className="w-4 h-4" style={{ fill: interestSent ? '#fff' : 'none' }} /> {interestSent ? 'Interest sent' : 'Send interest'}
                   </button>
                   <button className="button px-4 py-2 text-sm font-semibold flex items-center gap-1.5" style={{ background: 'var(--color-elevated)', color: 'var(--color-ink)', border: '1px solid var(--color-border)' }}>
@@ -121,7 +133,7 @@ export default function Profile() {
                 <h2 className="text-base font-semibold mb-3 flex items-center gap-2" style={{ color: 'var(--color-ink)' }}>
                   <Heart className="w-4 h-4" style={{ color: 'var(--color-primary)' }} /> Compatibility
                 </h2>
-                <CompatibilityIndex score={compat.score} breakdown={compat.breakdown} />
+                <CompatibilityIndex profile={profile} />
               </div>
             )}
 

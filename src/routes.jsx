@@ -82,6 +82,7 @@ const router = createBrowserRouter([
       { path: '/dashboard', element: <LazyRoute component={Dashboard} /> },
       { path: '/messages', element: <LazyRoute component={Messages} /> },
       { path: '/onboard', element: <LazyRoute component={Onboard} /> },
+      { path: '/profile', element: <LazyRoute component={Onboard} /> },
       { path: '/settings', element: <LazyRoute component={Settings} /> },
     ],
   },

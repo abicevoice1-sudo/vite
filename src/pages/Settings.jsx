@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { readIsDark, writeIsDark } from '../lib/theme';
 import Layout from '../layouts/MainLayout';
 import { useAuth } from '../lib/auth/AuthContext';
 import {
@@ -6,11 +7,26 @@ import {
   AlertTriangle
 } from 'lucide-react';
 
+// Settings are per-member: the key follows the signed-in account
+// (sh_session.uid), never the bare browser. Two accounts on one browser must
+// never read each other's privacy choices. Same-device preferences only —
+// nothing here claims server enforcement.
+const SETTINGS_BASE = 'shiarishta_settings';
+function settingsKey() {
+  try {
+    const raw = localStorage.getItem('sh_session');
+    const uid = raw ? JSON.parse(raw)?.uid : null;
+    return uid ? `${SETTINGS_BASE}::${uid}` : SETTINGS_BASE;
+  } catch {
+    return SETTINGS_BASE;
+  }
+}
+
 export default function Settings() {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('profile');
   const [saved, setSaved] = useState(false);
-  const [theme, setTheme] = useState(localStorage.getItem('theme') || 'system');
+  const [theme, setTheme] = useState(readIsDark() ? 'dark' : 'light');
 
   const [profile, setProfile] = useState({
     displayName: user?.displayName || '',
@@ -32,21 +48,24 @@ export default function Settings() {
   const [twoFactor, setTwoFactor] = useState(false);
 
   useEffect(() => {
-    const savedSettings = localStorage.getItem('shiarishta_settings');
+    const savedSettings = localStorage.getItem(settingsKey());
     if (savedSettings) {
       try {
         const parsed = JSON.parse(savedSettings);
         if (parsed.privacy) setPrivacy(prev => ({ ...prev, ...parsed.privacy }));
         if (parsed.notifications) setNotifications(prev => ({ ...prev, ...parsed.notifications }));
-        if (parsed.profile) setProfile(prev => ({ ...prev, ...parsed.profile }));
+        if (parsed.profile) setProfile(prev => ({ ...prev, ...parsed.profile, email: user?.email || '', displayName: prev.displayName || user?.displayName || '' }));
         if (parsed.twoFactor) setTwoFactor(parsed.twoFactor);
       } catch { /* corrupted — ignore */ }
     }
-  }, []);
+  }, [user?.email]);
 
   const handleSave = () => {
-    localStorage.setItem('shiarishta_settings', JSON.stringify({ privacy, notifications, theme, profile, twoFactor }));
-    localStorage.setItem('theme', theme);
+    localStorage.setItem(settingsKey(), JSON.stringify({ privacy, notifications, profile, twoFactor }));
+    // Appearance is global to this browser, not per member: every layout reads
+    // the same versioned key through lib/theme.
+    writeIsDark(theme === 'dark');
+    document.documentElement.classList.toggle('dark', theme === 'dark');
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   };
@@ -61,7 +80,7 @@ export default function Settings() {
   ];
 
   const inputCls = 'w-full px-4 py-3 rounded-xl border border-line/30 bg-elevated text-sm text-ink placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary transition-all';
-  void inputCls; void profile; void setProfile;
+  void inputCls;
 
   return (
     <Layout>
@@ -92,15 +111,15 @@ export default function Settings() {
               <div className="space-y-6">
                 <h2 className="text-xl font-semibold text-ink">Profile Information</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div><label className="text-sm font-medium text-muted mb-1.5 block">Display Name</label>
-                    <input type="text" defaultValue={user?.displayName || ''} className="input w-full" />
-                  </div>
-                  <div><label className="text-sm font-medium text-muted mb-1.5 block">Email</label>
-                    <input type="email" defaultValue={user?.email || ''} className="input w-full" />
-                  </div>
+                   <div><label htmlFor="displayName" className="text-sm font-medium text-muted mb-1.5 block">Display Name</label>
+                     <input id="displayName" type="text" value={profile.displayName} onChange={e => setProfile(pp => ({ ...pp, displayName: e.target.value }))} className="input w-full" aria-label="Display name" />
+                   </div>
+                   <div><label htmlFor="email" className="text-sm font-medium text-muted mb-1.5 block">Email</label>
+                     <input id="settings-email" type="email" defaultValue={user?.email || ''} className="input w-full" aria-label="Email" readOnly />
+                   </div>
                 </div>
                 <div><label className="text-sm font-medium text-muted mb-1.5 block">Bio</label>
-                  <textarea rows={4} defaultValue="Tell others about yourself..." className="input w-full" resize-none />
+                  <textarea rows={4} defaultValue="Tell others about yourself..." className="input w-full resize-none" />
                 </div>
               </div>
             )}
@@ -108,6 +127,7 @@ export default function Settings() {
             {activeTab === 'privacy' && (
               <div className="space-y-6">
                 <h2 className="text-xl font-semibold text-ink">Privacy & Safety</h2>
+                <p className="text-sm text-muted">Stored in this browser for {user?.email || 'this account'} on Save. These controls do not enforce server-side privacy until a backend lands.</p>
                 {[
                   { key: 'profileVisibility', label: 'Profile Visibility', type: 'select', options: [{ v: 'public', l: 'Public' }, { v: 'private', l: 'Private' }, { v: 'friends', l: 'Friends Only' }] },
                   { key: 'photoVisibility', label: 'Photo Privacy', type: 'select', options: [{ v: 'public', l: 'Public' }, { v: 'interest', l: 'After Interest' }, { v: 'match', l: 'After Match' }, { v: 'private', l: 'Private' }] },
@@ -154,8 +174,9 @@ export default function Settings() {
             {activeTab === 'appearance' && (
               <div className="space-y-6">
                 <h2 className="text-xl font-semibold text-ink">Appearance</h2>
-                <div className="grid grid-cols-3 gap-4">
-                  {[{ v: 'light', l: 'Light', icon: Sun }, { v: 'dark', l: 'Dark', icon: Moon }, { v: 'system', l: 'System', icon: Monitor }].map(opt => {
+                <p className="text-sm text-muted">Applies to this browser immediately on Save.</p>
+                <div className="grid grid-cols-2 gap-4">
+                  {[{ v: 'light', l: 'Light', icon: Sun }, { v: 'dark', l: 'Dark', icon: Moon }].map(opt => {
                     const OptIcon = opt.icon;
                     return (
                     <button key={opt.v} onClick={() => setTheme(opt.v)} className={`flex flex-col items-center gap-2 p-4 rounded-xl transition-all ${theme === opt.v ? 'btn btn-primary' : 'btn btn-ghost'} `}>

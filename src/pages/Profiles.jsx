@@ -6,17 +6,12 @@ import { api } from '../lib/api/client';
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Search, SlidersHorizontal, X, Users, LayoutGrid, Heart, Sparkles, AlertCircle, Shield, Check
+  Search, SlidersHorizontal, LayoutGrid, Heart, AlertCircle, Shield
 } from 'lucide-react';
 
 const SECT_FILTERS = ['Any sect', 'Ithna Ashari (Twelver)', 'Ismaili', 'Bohra', 'Zaydi'];
 const RELIGIOSITY_FILTERS = ['Any level', 'Very practicing', 'Practicing', 'Moderately practicing', 'Reconnecting'];
 const EDUCATION_FILTERS = ['Any education', "Bachelor's degree", "Master's degree", 'Doctorate', 'Some college'];
-const PHOTO_FILTERS = [
-  { value: 'any', label: 'Any photo setting' },
-  { value: 'public', label: 'Photos visible' },
-  { value: 'protected', label: 'Privacy-protected' }
-];
 const SORTS = [
   { value: 'match', label: 'Best match' },
   { value: 'newest', label: 'Newest members' },
